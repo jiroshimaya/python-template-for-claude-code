@@ -9,6 +9,234 @@
 
 [Claude Code](https://www.anthropic.com/claude-code)との協働に最適化された、プロダクション対応のPythonプロジェクトテンプレートです。厳格な型チェック、自動パフォーマンス測定、包括的なドキュメント、進化するメモリ管理システムを備えています。
 
+## 📋 Claude Code チートシート
+
+#### 基本CLIコマンド
+```bash
+# インタラクティブREPLの開始
+claude
+
+# 初期プロンプト付きでREPLを開始
+claude "質問内容"
+
+# SDKモードで質問して終了
+claude -p "質問内容"
+
+# 最新の会話を継続
+claude -c
+
+# 特定のセッションを再開
+claude -r "<session-id>" "質問内容"
+
+# アップデート・システム管理
+claude update                    # Claude Codeを最新版に更新
+claude --version                # バージョン確認
+claude --help                   # ヘルプ表示
+claude mcp                      # Model Context Protocol設定
+```
+
+#### CLIフラグ・オプション
+```bash
+# モデル設定
+claude --model sonnet           # Claude 3.5 Sonnetを使用
+claude --model opus             # Claude 3 Opusを使用
+claude --model haiku            # Claude 3 Haikuを使用
+
+# セッション管理
+claude --list-sessions          # セッション一覧表示
+claude --delete-session "<id>"  # セッション削除
+
+# ディレクトリ・作業環境
+claude --add-dir /path/to/dir   # 作業ディレクトリを追加
+claude --add-dir dir1 --add-dir dir2  # 複数ディレクトリ追加
+
+# 出力・フォーマット制御
+claude --output-format text     # テキスト形式出力
+claude --output-format json     # JSON形式出力
+claude --output-format stream-json  # ストリーミングJSON出力
+claude --verbose               # 詳細ログ表示
+claude --quiet                 # 静かなモード
+
+# 実行制御・権限管理
+claude --max-turns 5           # 最大ターン数制限
+claude --timeout 30            # タイムアウト設定（秒）
+claude --tool-permissions restricted  # ツール権限制限
+claude --allowedTools "Read,Write,Bash"  # 使用可能ツール指定
+claude --disallowedTools "WebFetch"      # 使用禁止ツール指定
+
+# セッション・履歴管理
+claude --list-sessions         # セッション一覧表示
+claude --delete-session "<id>" # セッション削除
+claude --session-id "<id>"     # 特定セッションで開始
+claude --no-history           # 履歴を保存しない
+```
+
+#### パイプ・ストリーム操作
+```bash
+# パイプでの入力
+echo "コードをレビューして" | claude
+cat file.py | claude "このコードを説明して"
+
+# ファイルの内容を直接入力
+claude < input.txt
+
+# 環境変数での設定
+export ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
+export ANTHROPIC_API_KEY=your_api_key
+```
+
+#### REPLモード内スラッシュコマンド
+Claude Code のインタラクティブモード中に使用できるコマンド：
+
+```bash
+# 基本コマンド
+/help                          # ヘルプ・利用可能コマンド一覧表示
+/clear                         # 画面クリア・履歴リセット
+/exit                          # Claude Codeを終了
+/quit                          # Claude Codeを終了（/exitの別名）
+
+# モデル・設定管理
+/model                         # 現在のモデル表示・変更
+/model sonnet                  # Claude 3.5 Sonnetに変更
+/model opus                    # Claude 3 Opusに変更
+/model haiku                   # Claude 3 Haikuに変更
+/settings                      # 現在の設定表示・変更
+/permissions                   # 現在のツール権限表示
+
+# メモリ・記憶管理
+/memory                        # メモリ管理・プロジェクト記憶の表示/編集
+/memory clear                  # メモリをクリア
+/memory show                   # 現在のメモリ内容を表示
+/memory edit                   # メモリを編集
+#                              # CLAUDE.mdへのクイックアクセス（行頭で#）
+
+# セッション管理
+/save                          # 現在のセッションを保存
+/save <name>                   # セッションに名前を付けて保存
+/load <session-id>             # 指定セッションを読み込み
+/sessions                      # セッション一覧表示
+/list-sessions                 # セッション一覧表示（/sessionsの別名）
+/delete-session <id>           # 指定セッションを削除
+
+# ファイル・プロジェクト操作
+/add-dir <path>                # 作業ディレクトリを追加
+/remove-dir <path>             # 作業ディレクトリを削除
+/list-dirs                     # 現在の作業ディレクトリ一覧
+/cwd                           # 現在の作業ディレクトリを表示
+/pwd                           # 現在の作業ディレクトリを表示（/cwdの別名）
+
+# モード・表示切替
+/terminal-setup                # 複数行入力モードの設定
+/vim-mode                      # Vimキーバインドを有効化
+/emacs-mode                    # Emacsキーバインドを有効化
+
+# デバッグ・診断・ユーティリティ
+/debug                         # デバッグ情報表示
+/status                        # システム状態・接続状況表示
+/version                       # Claude Codeのバージョン表示
+/whoami                        # 現在のユーザー情報表示
+/tokens                        # トークン使用量統計表示
+/feedback                      # フィードバック送信
+/reset                         # 設定をデフォルトにリセット
+```
+
+#### キーボードショートカット・インタラクティブ操作
+
+```bash
+# 基本操作
+Ctrl+C                         # 現在の入力・生成をキャンセル
+Ctrl+D                         # Claude Codeセッションを終了
+Ctrl+L                         # ターミナル画面をクリア
+Ctrl+R                         # コマンド履歴の逆方向検索（対応端末）
+Up/Down arrows                 # コマンド履歴のナビゲーション
+Tab                            # オートコンプリート（利用可能な場合）
+
+# 複数行入力（環境依存）
+\<Enter>                       # クイックエスケープ（全端末対応）
+Option+Enter                   # macOS標準
+Shift+Enter                    # /terminal-setup後に有効
+Alt+Enter                      # Linux/Windows（一部端末）
+
+# 特殊入力
+Esc Esc                        # 前のメッセージを編集
+#<Enter>                       # CLAUDE.mdへのクイックアクセス
+/<tab>                         # スラッシュコマンドの補完
+```
+
+#### 高度な使用例・統合活用
+
+```bash
+# 複数オプションの組み合わせ
+claude --model opus --verbose --add-dir ./src --add-dir ./tests "プロジェクト全体をレビューして"
+
+# 特定の形式での出力制御
+claude --output-format json -p "このコードの問題点をJSON形式で教えて" < code.py
+
+# タイムアウト付きでの実行
+claude --timeout 60 --max-turns 3 "複雑な最適化を提案して"
+
+# 制限されたツール権限での実行
+claude --tool-permissions restricted "安全にコードを分析して"
+
+# セッション管理の活用
+claude --save-session "code-review-2024" --model sonnet
+claude --load-session "code-review-2024" --continue
+
+# スクリプト自動化での活用
+claude --output-format json --quiet -p "テストを実行してエラー数を返して" | jq '.error_count'
+
+# CI/CDでの活用例
+cat test_results.txt | claude --output-format text -p "テスト結果を分析してサマリーを作成"
+
+# 設定ファイルとの連携
+export ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
+export CLAUDE_CONFIG_FILE="./claude-config.json"
+claude --config-file ./claude-config.json
+```
+
+#### Model Context Protocol（MCP）統合
+
+```bash
+# MCP サーバー設定・管理
+claude mcp                     # MCP設定画面を開く
+claude mcp list                # 利用可能なMCPサーバー一覧
+claude mcp enable <server>     # MCPサーバーを有効化
+claude mcp disable <server>    # MCPサーバーを無効化
+claude mcp status              # MCP接続状況確認
+
+# MCPサーバー例（設定後に利用可能）
+# - ファイルシステム操作
+# - データベース接続
+# - Git操作
+# - Docker管理
+# - クラウドサービス統合
+```
+
+#### 環境変数・設定の活用
+
+```bash
+# 基本設定
+export ANTHROPIC_API_KEY="your_api_key"
+export ANTHROPIC_MODEL="claude-3-5-sonnet-20241022"
+export CLAUDE_CONFIG_DIR="~/.config/claude-code"
+
+# 高度な設定
+export CLAUDE_MAX_TURNS=10           # デフォルト最大ターン数
+export CLAUDE_DEFAULT_TIMEOUT=120    # デフォルトタイムアウト
+export CLAUDE_HISTORY_SIZE=1000      # 履歴保存数
+export CLAUDE_AUTO_SAVE=true         # 自動セッション保存
+
+# プロジェクト固有設定
+export CLAUDE_PROJECT_DIRS="./src:./tests:./docs"
+export CLAUDE_ALLOWED_TOOLS="Read,Write,Bash,Edit"
+export CLAUDE_DISALLOWED_TOOLS="WebFetch,WebSearch"
+
+# デバッグ・開発設定
+export CLAUDE_DEBUG=true             # デバッグモード
+export CLAUDE_LOG_LEVEL=INFO         # ログレベル
+export CLAUDE_VERBOSE=true           # 詳細出力
+```
+
 ## 🚀 クイックスタート
 
 ### このテンプレートを使用する
@@ -62,12 +290,6 @@ uv run pytest
 
 ## ✨ 主な特徴
 
-### 🚀 Claude Code最適化
-- **進化するメモリシステム** - CLAUDE.mdが動的に更新される知識ベース
-- **体系的な更新プロトコル** - 頻度・変更・品質指標ベースの自動更新
-- **分散ドキュメント管理** - プロジェクトタイプ別の専門ガイド
-- **GitHub統合** - `make pr`、`make issue`コマンドでシームレスな操作
-
 ### 🛠️ 開発ツールチェーン
 - **[uv](https://github.com/astral-sh/uv)** - 高速なPythonパッケージマネージャー
 - **[Ruff](https://github.com/astral-sh/ruff)** - 超高速Pythonリンター・フォーマッター
@@ -102,7 +324,7 @@ uv run pytest
 - ✅ キャッシュ最適化された実行環境
 
 ### 📚 包括的ドキュメント
-- ✅ **動的CLAUDE.md** - プロジェクトと共に進化する知識ベース
+- ✅ **CLAUDE.md** - ベース
 - ✅ **専門ガイド** - ML/バックエンドプロジェクト対応
 - ✅ **協働戦略ガイド** - 人間とClaude Codeの効果的な連携方法
 - ✅ **メモリ更新プロトコル** - ドキュメント品質管理フレームワーク
@@ -271,14 +493,6 @@ uv sync --all-extras
 uv lock --upgrade
 ```
 
-## 🤖 Claude Code との次世代協働システム
-
-このテンプレートはClaude Codeとの協働を革新的にサポートします：
-
-### 🧠 進化するメモリシステム
-- **体系的更新プロトコル**: 頻度・変更等による自動更新判定
-- **分散メモリ管理**: メイン（CLAUDE.md）とサブ（専門ガイド）の最適分散
-
 ### 🔄 自己改善サイクル
 Claude Code使用時の自動学習・改善プロセス：
 
@@ -294,6 +508,7 @@ Claude Code使用時の自動学習・改善プロセス：
 - 型安全な開発環境（PEP 695対応）
 - ワンコマンドGitHub操作（`make pr`、`make issue`）
 - 自動品質チェック・パフォーマンス測定
+- 全コマンドの理解・活用による効率的な操作
 
 **段階的に進化**:
 - プロジェクト固有パターンの学習
@@ -310,7 +525,7 @@ Claude Code使用時の自動学習・改善プロセス：
 ## 📚 ドキュメント階層
 
 ### 🎯 メインドキュメント
-- **[CLAUDE.md](CLAUDE.md)** - 動的進化する包括的プロジェクトガイド
+- **[CLAUDE.md](CLAUDE.md)** - 包括的プロジェクトガイド
   - プロジェクト概要・コーディング規約
   - よく使うコマンド・GitHub操作
   - 型ヒント・テスト戦略・セキュリティ
