@@ -108,3 +108,8 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
 ]
+
+[dependency-groups]
+dev = [
+    "urllib3>=2.5.0",
+]
