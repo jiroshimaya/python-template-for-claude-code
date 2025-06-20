@@ -9,11 +9,19 @@ updated_at: 2025-06-20
 
 ## プロジェクト概要
 
-**プロジェクトを開始する前に、必ずこの項目をプロジェクトに特化したものに更新し、適宜メンテナンスしてください。**
-
 このプロジェクトは、Claude Codeでの開発に最適化されたPythonプロジェクトテンプレートです。
 厳格な型チェック、自動化されたコード品質管理、CIに加えて、GitHub CLIを使用したGitHub操作をサポートします。
 また、Claude Codeとの協働をサポートするためのドキュメントも提供します。
+
+**重要**: プロジェクト初期化時のTODO:
+- [ ] この項目（「プロジェクト概要」セクション）をプロジェクトに特化したものに更新
+- [ ] パッケージ、テスト、ベンチマークのCIに存在するサンプルコードを削除する
+    - [ ] @src/project_name/core/example.py を削除
+    - [ ] @src/project_name/utils/helpers.py を削除
+    - [ ] @tests/unit/test_example.py を削除
+    - [ ] @tests/conftest.py を削除
+    - [ ] @.github/workflows/benchmark.yml を削除
+- [ ] このTODOを削除する
 
 ## 技術スタック
 

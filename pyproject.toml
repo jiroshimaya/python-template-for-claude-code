@@ -118,5 +118,6 @@ markers = [
 
 [dependency-groups]
 dev = [
+    "pytest-benchmark>=5.1.0",
     "urllib3>=2.5.0",
 ]
