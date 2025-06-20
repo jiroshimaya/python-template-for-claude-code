@@ -1,10 +1,9 @@
-"""Unit tests for project_name.core.example module."""
+"""Unit tests for example module."""
 
 from typing import Any
 
 import pytest
-
-from project_name.core.example import (
+from template_package.core.example import (
     ExampleClass,
     ExampleConfig,
     process_data,
@@ -48,63 +47,61 @@ class TestExampleConfig:
 class TestExampleClass:
     """Test ExampleClass."""
 
-    def test_正常系_初期化時は空のリスト(self) -> None:
+    def test_正常系_初期化時は空のリスト(
+        self,
+        example_instance: ExampleClass,
+    ) -> None:
         """初期化時にデータが空であることを確認。"""
-        config = ExampleConfig(name="test")
-        instance = ExampleClass(config)
+        assert len(example_instance) == 0
+        assert example_instance.get_items() == []
 
-        assert len(instance) == 0
-        assert instance.get_items() == []
-
-    def test_正常系_アイテムを追加できる(self) -> None:
+    def test_正常系_アイテムを追加できる(
+        self,
+        example_instance: ExampleClass,
+    ) -> None:
         """アイテムを正常に追加できることを確認。"""
-        config = ExampleConfig(name="test")
-        instance = ExampleClass(config)
         item = {"id": 1, "name": "test_item", "value": 42}
+        example_instance.add_item(item)
 
-        instance.add_item(item)
+        assert len(example_instance) == 1
+        assert example_instance.get_items() == [item]
 
-        assert len(instance) == 1
-        assert instance.get_items() == [item]
-
-    def test_正常系_複数のアイテムを追加できる(self) -> None:
+    def test_正常系_複数のアイテムを追加できる(
+        self,
+        example_instance: ExampleClass,
+        sample_data: list[dict[str, Any]],
+    ) -> None:
         """複数のアイテムを追加できることを確認。"""
-        config = ExampleConfig(name="test")
-        instance = ExampleClass(config)
-        sample_data = [
-            {"id": 1, "name": "Item 1", "value": 100},
-            {"id": 2, "name": "Item 2", "value": 200},
-            {"id": 3, "name": "Item 3", "value": 300},
-        ]
-
         for item in sample_data:
-            instance.add_item(item)
+            example_instance.add_item(item)
 
-        assert len(instance) == len(sample_data)
-        assert instance.get_items() == sample_data
+        assert len(example_instance) == len(sample_data)
+        assert example_instance.get_items() == sample_data
 
-    def test_正常系_フィルタリングが機能する(self) -> None:
+    def test_正常系_フィルタリングが機能する(
+        self,
+        example_instance: ExampleClass,
+        sample_data: list[dict[str, Any]],
+    ) -> None:
         """フィルタリングが正しく機能することを確認。"""
-        config = ExampleConfig(name="test")
-        instance = ExampleClass(config)
-        sample_data = [
-            {"id": 1, "name": "Item 1", "value": 100},
-            {"id": 2, "name": "Item 2", "value": 200},
-            {"id": 3, "name": "Item 3", "value": 300},
-        ]
-
         for item in sample_data:
-            instance.add_item(item)
+            example_instance.add_item(item)
 
-        filtered = instance.get_items(filter_key="value", filter_value=200)
+        filtered = example_instance.get_items(
+            filter_key="value",
+            filter_value=200,
+        )
 
         assert len(filtered) == 1
         assert filtered[0]["id"] == 2
 
-    def test_異常系_最大数を超えるとValueError(self) -> None:
+    def test_異常系_最大数を超えるとValueError(
+        self,
+        example_config: ExampleConfig,
+    ) -> None:
         """最大数を超えてアイテムを追加しようとするとエラーになることを確認。"""
-        config = ExampleConfig(name="test", max_items=2)
-        instance = ExampleClass(config)
+        example_config.max_items = 2
+        instance = ExampleClass(example_config)
 
         instance.add_item({"id": 1, "name": "item1", "value": 10})
         instance.add_item({"id": 2, "name": "item2", "value": 20})
@@ -112,35 +109,46 @@ class TestExampleClass:
         with pytest.raises(ValueError, match="max_items limit"):
             instance.add_item({"id": 3, "name": "item3", "value": 30})
 
-    def test_異常系_空の辞書でValueError(self) -> None:
+    def test_異常系_空の辞書でValueError(
+        self,
+        example_instance: ExampleClass,
+    ) -> None:
         """空の辞書を追加しようとするとエラーになることを確認。"""
-        config = ExampleConfig(name="test")
-        instance = ExampleClass(config)
-
         with pytest.raises(ValueError, match="Missing required fields"):
-            instance.add_item({})
+            example_instance.add_item({})
 
-    def test_正常系_バリデーション無効時は空の辞書も追加できる(self) -> None:
+    def test_異常系_辞書以外を追加しようとするとTypeError(
+        self,
+        example_instance: ExampleClass,
+    ) -> None:
+        """辞書以外を追加しようとするとエラーになることを確認。"""
+        # mypyによる型チェックがあるため、実行時には型エラーとして扱われる
+        # ここでは実際に文字列が渡された場合の動作をテスト
+        with pytest.raises((TypeError, AttributeError)):
+            example_instance.add_item("not a dict")  # type: ignore
+
+    def test_正常系_バリデーション無効時は空の辞書も追加できる(
+        self,
+        example_config: ExampleConfig,
+    ) -> None:
         """バリデーション無効時は制約がないことを確認。"""
-        config = ExampleConfig(name="test", enable_validation=False)
-        instance = ExampleClass(config)
+        example_config.enable_validation = False
+        instance = ExampleClass(example_config)
 
+        # バリデーション無効時は空の辞書も追加可能
         instance.add_item({})
         assert len(instance) == 1
 
-    def test_正常系_repr表現が正しい(self) -> None:
+    def test_正常系_repr表現が正しい(
+        self,
+        example_instance: ExampleClass,
+        sample_data: list[dict[str, Any]],
+    ) -> None:
         """repr表現が期待通りであることを確認。"""
-        config = ExampleConfig(name="test", max_items=10)
-        instance = ExampleClass(config)
-        sample_data = [
-            {"id": 1, "name": "Item 1", "value": 100},
-            {"id": 2, "name": "Item 2", "value": 200},
-        ]
+        for item in sample_data[:2]:
+            example_instance.add_item(item)
 
-        for item in sample_data:
-            instance.add_item(item)
-
-        repr_str = repr(instance)
+        repr_str = repr(example_instance)
         assert "ExampleClass" in repr_str
         assert "name='test'" in repr_str
         assert "items=2/10" in repr_str
@@ -157,12 +165,11 @@ class MockProcessor:
 class TestProcessData:
     """Test process_data function."""
 
-    def test_正常系_データが処理される(self) -> None:
+    def test_正常系_データが処理される(
+        self,
+        sample_data: list[dict[str, Any]],
+    ) -> None:
         """データが正しく処理されることを確認。"""
-        sample_data = [
-            {"id": 1, "name": "Item 1", "value": 100},
-            {"id": 2, "name": "Item 2", "value": 200},
-        ]
         processor = MockProcessor()
         result = process_data(sample_data, processor)
 

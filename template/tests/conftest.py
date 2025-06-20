@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
-from project_name.core.example import ExampleClass, ExampleConfig
+from template_package.core.example import ExampleClass, ExampleConfig
+from template_package.utils.logging_config import set_log_level, setup_logging
 
 
 @pytest.fixture
@@ -48,6 +48,7 @@ def temp_dir() -> Iterator[Path]:
 @pytest.fixture(autouse=True)
 def reset_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     """Reset environment variables for each test."""
+    # Remove any test-specific environment variables
     test_env_vars = [var for var in os.environ if var.startswith("TEST_")]
     for var in test_env_vars:
         monkeypatch.delenv(var, raising=False)
@@ -56,26 +57,32 @@ def reset_environment(monkeypatch: pytest.MonkeyPatch) -> None:
 @pytest.fixture(scope="session")
 def setup_test_logging() -> None:
     """Setup logging for test session with DEBUG level by default."""
+    # テスト中はデフォルトでDEBUGレベル
     log_level = os.environ.get("TEST_LOG_LEVEL", "DEBUG")
-    logging.basicConfig(
-        level=getattr(logging, log_level, logging.DEBUG),
-        format="[%(asctime)s] [%(levelname)8s] [%(name)s] %(message)s",
-        force=True,
-    )
+    setup_logging(level=log_level, force=True)
 
 
 @pytest.fixture
 def capture_logs(caplog: pytest.LogCaptureFixture) -> pytest.LogCaptureFixture:
     """Capture logs for testing with proper level."""
+    # テスト用にログレベルを設定
     caplog.set_level(logging.DEBUG)
     return caplog
 
 
+@pytest.fixture
+def set_test_log_level():
+    """Fixture to dynamically set log level in tests."""
+
+    def _set_level(level: str | int) -> None:
+        set_log_level(level)
+
+    return _set_level
+
+
+# pytestの起動時にロギングを設定
 def pytest_configure(config: pytest.Config) -> None:
     """Configure pytest with logging setup."""
+    # テスト実行時のDEBUGログ設定
     log_level = os.environ.get("TEST_LOG_LEVEL", "DEBUG")
-    logging.basicConfig(
-        level=getattr(logging, log_level, logging.DEBUG),
-        format="[%(asctime)s] [%(levelname)8s] [%(name)s] %(message)s",
-        force=True,
-    )
+    setup_logging(level=log_level, force=True)

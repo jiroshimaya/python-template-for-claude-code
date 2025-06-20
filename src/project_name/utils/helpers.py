@@ -1,147 +1,146 @@
-"""Utility helper functions."""
+"""Helper functions for common operations."""
 
 import json
-from collections.abc import Mapping
+import logging
 from pathlib import Path
-from typing import TypeVar
+from typing import Any
 
-from ..types import JSONObject, JSONValue
-
-T = TypeVar("T")
+logger = logging.getLogger(__name__)
 
 
-def load_json_file(filepath: str | Path) -> JSONObject:
-    """Load JSON data from a file.
-
-    Parameters
-    ----------
-    filepath : str | Path
-        Path to JSON file
-
-    Returns
-    -------
-    JSONObject
-        Loaded JSON data as a dictionary
-
-    Raises
-    ------
-    FileNotFoundError
-        If file doesn't exist
-    ValueError
-        If file contains invalid JSON
-    """
-    path = Path(filepath)
-
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
-
-    try:
-        with path.open("r", encoding="utf-8") as f:
-            result = json.load(f)
-            # json.load returns Any, but we expect dict[str, Any]
-            if not isinstance(result, dict):
-                type_name = type(result).__name__
-                raise ValueError(f"Expected JSON object in {path}, got {type_name}")
-            return result
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in {path}: {e}") from e
-
-
-def save_json_file(
-    data: JSONObject,
-    filepath: str | Path,
-    *,
-    indent: int = 2,
-    ensure_ascii: bool = False,
-) -> None:
-    """Save data to a JSON file.
-
-    Parameters
-    ----------
-    data : JSONObject
-        JSON-compatible dictionary to save
-    filepath : str | Path
-        Path to save to
-    indent : int
-        JSON indentation level
-    ensure_ascii : bool
-        Whether to escape non-ASCII characters
-    """
-    path = Path(filepath)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=indent, ensure_ascii=ensure_ascii)
-
-
-def chunk_list(items: list[T], chunk_size: int) -> list[list[T]]:
+def chunk_list(items: list[Any], chunk_size: int) -> list[list[Any]]:
     """Split a list into chunks of specified size.
 
     Parameters
     ----------
-    items : list[T]
-        Items to chunk
+    items : list[Any]
+        List to be chunked
     chunk_size : int
-        Size of each chunk
+        Size of each chunk (must be positive)
 
     Returns
     -------
-    list[list[T]]
+    list[list[Any]]
         List of chunks
 
     Raises
     ------
     ValueError
         If chunk_size is not positive
-
-    Examples
-    --------
-    >>> chunk_list([1, 2, 3, 4, 5], 2)
-    [[1, 2], [3, 4], [5]]
     """
-    if chunk_size <= 0:
-        raise ValueError(f"chunk_size must be positive, got {chunk_size}")
+    logger.debug(f"Chunking list of {len(items)} items with chunk_size={chunk_size}")
 
-    return [items[i : i + chunk_size] for i in range(0, len(items), chunk_size)]
+    if chunk_size <= 0:
+        raise ValueError("Chunk size must be positive")
+
+    if not items:
+        logger.debug("Empty list provided, returning empty result")
+        return []
+
+    chunks = []
+    for i in range(0, len(items), chunk_size):
+        chunk = items[i : i + chunk_size]
+        chunks.append(chunk)
+
+    logger.debug(f"Created {len(chunks)} chunks")
+    return chunks
 
 
 def flatten_dict(
-    nested_dict: Mapping[str, JSONValue],
-    *,
-    separator: str = ".",
-    prefix: str = "",
-) -> Mapping[str, JSONValue]:
+    nested_dict: dict[str, Any], separator: str = ".", prefix: str = ""
+) -> dict[str, Any]:
     """Flatten a nested dictionary.
 
     Parameters
     ----------
-    nested_dict : dict[str, JSONValue]
-        Dictionary with JSON-compatible values to flatten
-    separator : str
-        Separator for keys
-    prefix : str
-        Prefix for all keys
+    nested_dict : dict[str, Any]
+        Dictionary to flatten
+    separator : str, default="."
+        Separator to use between nested keys
+    prefix : str, default=""
+        Prefix to add to all keys
 
     Returns
     -------
-    Mapping[str, JSONValue]
-        Flattened dictionary with dot-notation keys
-
-    Examples
-    --------
-    >>> flatten_dict({"a": {"b": 1, "c": 2}})
-    {"a.b": 1, "a.c": 2}
+    dict[str, Any]
+        Flattened dictionary
     """
-    items: list[tuple[str, JSONValue]] = []
+    logger.debug(f"Flattening dictionary with {len(nested_dict)} top-level keys")
+
+    result = {}
 
     for key, value in nested_dict.items():
         new_key = f"{prefix}{separator}{key}" if prefix else key
 
         if isinstance(value, dict):
-            items.extend(
-                flatten_dict(value, separator=separator, prefix=new_key).items()
-            )
+            # Recursively flatten nested dictionaries
+            result.update(flatten_dict(value, separator, new_key))
         else:
-            items.append((new_key, value))
+            result[new_key] = value
 
-    return dict(items)
+    logger.debug(f"Flattened to {len(result)} keys")
+    return result
+
+
+def save_json_file(data: Any, file_path: str | Path, indent: int | None = 2) -> None:
+    """Save data to a JSON file.
+
+    Parameters
+    ----------
+    data : Any
+        Data to save (must be JSON serializable)
+    file_path : str | Path
+        Path to save the file
+    indent : int | None, default=2
+        JSON indentation level
+
+    Raises
+    ------
+    ValueError
+        If data is not JSON serializable
+    """
+    path = Path(file_path)
+    logger.debug(f"Saving JSON data to {path}")
+
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("w", encoding="utf-8") as f:
+            json.dump(data, f, indent=indent, ensure_ascii=False)
+        logger.debug(f"Successfully saved JSON to {path}")
+    except (TypeError, ValueError) as e:
+        raise ValueError(f"Data is not JSON serializable: {e}") from e
+
+
+def load_json_file(file_path: str | Path) -> Any:
+    """Load data from a JSON file.
+
+    Parameters
+    ----------
+    file_path : str | Path
+        Path to the JSON file
+
+    Returns
+    -------
+    Any
+        Loaded data
+
+    Raises
+    ------
+    FileNotFoundError
+        If file does not exist
+    ValueError
+        If file contains invalid JSON
+    """
+    path = Path(file_path)
+    logger.debug(f"Loading JSON data from {path}")
+
+    if not path.exists():
+        raise FileNotFoundError(f"JSON file not found: {path}")
+
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+        logger.debug(f"Successfully loaded JSON from {path}")
+        return data
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in file {path}: {e}") from e

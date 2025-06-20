@@ -1,22 +1,15 @@
-"""Example module demonstrating best practices."""
+"""Example module with basic functionality."""
 
+import logging
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-from ..types import ItemDict
-
-
-class DataProcessor(Protocol):
-    """Protocol for data processors."""
-
-    def process(self, data: list[ItemDict]) -> list[ItemDict]:
-        """Process a list of data items."""
-        ...
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class ExampleConfig:
-    """Configuration for ExampleClass."""
+    """Configuration for example functionality."""
 
     name: str
     max_items: int = 100
@@ -25,158 +18,83 @@ class ExampleConfig:
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""
         if self.max_items <= 0:
-            raise ValueError(f"max_items must be positive, got {self.max_items}")
+            raise ValueError("max_items must be positive")
+
+
+class DataProcessor(Protocol):
+    """Protocol for data processors."""
+
+    def process(self, data: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Process data and return processed result."""
+        ...
 
 
 class ExampleClass:
-    """Example class demonstrating type hints and documentation.
-
-    This class shows how to properly structure a Python class with:
-    - Type hints for all methods
-    - Comprehensive docstrings
-    - Proper error handling
-
-    Attributes
-    ----------
-    config : ExampleConfig
-        Configuration for this instance
-    data : list[dict[str, Any]]
-        Internal data storage
-
-    Examples
-    --------
-    >>> config = ExampleConfig(name="test", max_items=50)
-    >>> example = ExampleClass(config)
-    >>> example.add_item({"id": 1, "value": "test"})
-    >>> len(example)
-    1
-    """
+    """Example class demonstrating the project structure."""
 
     def __init__(self, config: ExampleConfig) -> None:
-        """Initialize ExampleClass with configuration.
-
-        Parameters
-        ----------
-        config : ExampleConfig
-            Configuration object
-        """
+        """Initialize with configuration."""
         self.config = config
-        self.data: list[ItemDict] = []
+        self._items: list[dict[str, Any]] = []
+        logger.info(f"ExampleClass initialized with config: {config.name}")
 
-    def add_item(self, item: ItemDict) -> None:
-        """Add an item to the internal storage.
+    def add_item(self, item: dict[str, Any]) -> None:
+        """Add an item to the collection."""
+        logger.debug(f"Adding item: {item}")
 
-        Parameters
-        ----------
-        item : dict[str, Any]
-            Item to add
-
-        Raises
-        ------
-        ValueError
-            If max_items limit is reached or validation fails
-        """
-        if len(self.data) >= self.config.max_items:
-            raise ValueError(
-                f"Cannot add item: max_items limit ({self.config.max_items}) reached"
-            )
+        if len(self._items) >= self.config.max_items:
+            raise ValueError("max_items limit exceeded")
 
         if self.config.enable_validation:
-            self._validate_item(item)
+            required_fields = {"id", "name", "value"}
+            if not all(field in item for field in required_fields):
+                raise ValueError("Missing required fields: id, name, value")
+            if not item.get("name"):
+                raise ValueError("name cannot be empty")
 
-        self.data.append(item)
-
-    def _validate_item(self, item: ItemDict) -> None:
-        """Validate an item before adding.
-
-        Parameters
-        ----------
-        item : dict[str, Any]
-            Item to validate
-
-        Raises
-        ------
-        ValueError
-            If item is invalid
-        """
-        # Type checking is handled by mypy, but runtime check for safety
-        if not isinstance(item, dict):
-            raise ValueError(f"Item must be a dictionary, got {type(item).__name__}")
-
-        # Validate required fields
-        required_fields = {"id", "name", "value"}
-        missing_fields = required_fields - set(item.keys())
-        if missing_fields:
-            raise ValueError(f"Missing required fields: {missing_fields}")
-
-        if not item:
-            raise ValueError("Item cannot be empty")
+        self._items.append(item)
+        logger.debug(f"Item added successfully. Total items: {len(self._items)}")
 
     def get_items(
         self,
-        *,
         filter_key: str | None = None,
-        filter_value: Any | None = None,
-    ) -> list[ItemDict]:
-        """Get items with optional filtering.
+        filter_value: Any = None,
+    ) -> list[dict[str, Any]]:
+        """Get items with optional filtering."""
+        logger.debug(f"Getting items with filter: {filter_key}={filter_value}")
 
-        Parameters
-        ----------
-        filter_key : str | None
-            Key to filter by
-        filter_value : Any | None
-            Value to filter by
+        if filter_key is None:
+            return self._items.copy()
 
-        Returns
-        -------
-        list[dict[str, Any]]
-            Filtered items
-        """
-        if filter_key is None or filter_value is None:
-            return self.data.copy()
-
-        return [item for item in self.data if item.get(filter_key) == filter_value]
+        filtered = [
+            item for item in self._items if item.get(filter_key) == filter_value
+        ]
+        logger.debug(f"Filtered {len(self._items)} items to {len(filtered)}")
+        return filtered
 
     def __len__(self) -> int:
-        """Return the number of items."""
-        return len(self.data)
+        """Return number of items."""
+        return len(self._items)
 
     def __repr__(self) -> str:
         """Return string representation."""
         return (
-            f"ExampleClass(name={self.config.name!r}, "
-            f"items={len(self)}/{self.config.max_items})"
+            f"ExampleClass(name='{self.config.name}', "
+            f"items={len(self._items)}/{self.config.max_items})"
         )
 
 
 def process_data(
-    data: list[ItemDict],
+    data: list[dict[str, Any]],
     processor: DataProcessor,
-    *,
     validate: bool = True,
-) -> list[ItemDict]:
-    """Process data using a processor.
+) -> list[dict[str, Any]]:
+    """Process data using the provided processor."""
+    logger.info(f"Processing {len(data)} items with validation={validate}")
 
-    Parameters
-    ----------
-    data : list[dict[str, Any]]
-        Data to process
-    processor : DataProcessor
-        Processor to use
-    validate : bool
-        Whether to validate data before processing
-
-    Returns
-    -------
-    list[dict[str, Any]]
-        Processed data
-
-    Raises
-    ------
-    ValueError
-        If validation fails
-    """
     if validate and not data:
-        raise ValueError("Data cannot be empty")
+        raise ValueError("Data cannot be empty when validation is enabled")
 
-    return processor.process(data)
+    result = processor.process(data)
+    logger.info(f"Processing completed. {len(result)} items returned")
+    return result

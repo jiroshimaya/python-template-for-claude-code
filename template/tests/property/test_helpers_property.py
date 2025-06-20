@@ -5,8 +5,7 @@ from pathlib import Path
 
 from hypothesis import given
 from hypothesis import strategies as st
-
-from project_name.utils.helpers import (
+from template_package.utils.helpers import (
     chunk_list,
     flatten_dict,
     load_json_file,

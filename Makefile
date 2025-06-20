@@ -6,6 +6,7 @@ help:
 	@echo ""
 	@echo "Available targets:"
 	@echo "  setup        - セットアップ（依存関係インストール、pre-commit設定）"
+	@echo "  sync         - 全依存関係を同期"
 	@echo "  test         - 全テスト実行（単体・プロパティ・統合）"
 	@echo "  test-cov     - カバレッジ付きテスト実行"
 	@echo "  test-unit    - 単体テストのみ実行"
@@ -27,6 +28,9 @@ help:
 setup:
 	chmod +x scripts/setup.sh && ./scripts/setup.sh
 
+sync:
+	uv sync --all-extras
+
 # テスト関連
 test:
 	uv run pytest
@@ -45,10 +49,10 @@ test-integration:
 
 # コード品質チェック
 format:
-	uv run ruff format .
+	uv run ruff format . --config=pyproject.toml
 
 lint:
-	uv run ruff check . --fix
+	uv run ruff check . --fix --config=pyproject.toml
 
 typecheck:
 	uv run mypy src/ --strict

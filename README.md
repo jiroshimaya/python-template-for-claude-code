@@ -9,6 +9,11 @@
 
 [Claude Code](https://www.anthropic.com/claude-code)との協働に最適化された、プロダクション対応のPythonプロジェクトテンプレートです。厳格な型チェック、自動パフォーマンス測定、包括的なドキュメント、進化するメモリ管理システムを備えています。
 
+## 🔗 重要なドキュメント
+
+- **[CLAUDE.md](./CLAUDE.md)**: Claude Code向けの技術仕様・実装ガイド
+- **[template/](./template/)**: ベストプラクティスのモデルコード集
+
 ## 📋 Claude Code チートシート
 
 #### 基本CLIコマンド
@@ -25,8 +30,8 @@ claude -p "質問内容"
 # 最新の会話を継続
 claude -c
 
-# 特定のセッションを再開
-claude -r "<session-id>" "質問内容"
+# インタラクティブに特定のセッションを選択して再開
+claude -r
 
 # アップデート・システム管理
 claude update                    # Claude Codeを最新版に更新
@@ -92,6 +97,8 @@ Claude Code のインタラクティブモード中に使用できるコマン�
 # 基本コマンド
 /help                          # ヘルプ・利用可能コマンド一覧表示
 /clear                         # 画面クリア・履歴リセット
+/resume                        # インタラクティブに特定のセッションを選択して再開
+/continue                      # 直前のセッションに戻る
 /exit                          # Claude Codeを終了
 /quit                          # Claude Codeを終了（/exitの別名）
 
@@ -144,12 +151,15 @@ Claude Code のインタラクティブモード中に使用できるコマン�
 
 ```bash
 # 基本操作
+Ctrl+J                         # 改行
+Esc x 2                        # 前回のメッセージに戻る
 Ctrl+C                         # 現在の入力・生成をキャンセル
 Ctrl+D                         # Claude Codeセッションを終了
 Ctrl+L                         # ターミナル画面をクリア
 Ctrl+R                         # コマンド履歴の逆方向検索（対応端末）
 Up/Down arrows                 # コマンド履歴のナビゲーション
 Tab                            # オートコンプリート（利用可能な場合）
+Shift + Tab                    # Planモード切り替え
 
 # 複数行入力（環境依存）
 \<Enter>                       # クイックエスケープ（全端末対応）
@@ -366,162 +376,6 @@ project-root/
 └── CLAUDE.md                    # Claude Code用ガイド
 ```
 
-## 🛠️ 開発
-
-### 📋 テストの実行
-
-```bash
-# すべてのテストを実行（単体・プロパティ・統合）
-make test
-
-# カバレッジ付きで実行
-make test-cov
-
-# テスト種別で実行
-uv run pytest tests/unit/ -v           # 単体テスト
-uv run pytest tests/property/ -v       # プロパティベーステスト
-uv run pytest tests/integration/ -v    # 統合テスト
-
-# 特定のテストを実行
-uv run pytest tests/unit/test_helpers.py -v
-```
-
-### コード品質
-
-```bash
-# コードをフォーマット
-make format
-
-# コードをリント
-make lint
-
-# 型チェック
-make typecheck
-
-# すべてのチェックを順番に実行
-make check
-
-# pre-commitで完全チェック
-make check-all
-```
-
-### ⚡ パフォーマンス測定・プロファイリング
-
-```bash
-# ローカルベンチマーク実行
-make benchmark
-
-# プロファイリング実行（cProf使用）
-make profile
-
-# カスタムプロファイリング
-uv run python -c "
-from project_name.utils.profiling import profile, timeit, Timer
-
-# デコレータでの測定
-@profile
-def heavy_function():
-    return sum(i**2 for i in range(10000))
-
-@timeit
-def quick_function():
-    return [i for i in range(1000)]
-
-# コンテキストマネージャーでの測定
-with Timer('Custom operation') as timer:
-    result = heavy_function()
-print(f'Took {timer.elapsed:.4f} seconds')
-"
-
-# 詳細プロファイリング（上位10関数表示）
-uv run python -c "
-from project_name.utils.profiling import profile_context
-with profile_context(sort_by='cumulative', limit=10) as prof:
-    # 重い処理をここに記述
-    pass
-"
-```
-
-### 🔗 GitHub統合
-
-```bash
-# プルリクエスト作成
-make pr TITLE="新機能追加" BODY="説明" LABEL="enhancement"
-make pr TITLE="バグ修正" BODY="修正内容" LABEL="bug"
-
-# イシュー作成
-make issue TITLE="機能要求" BODY="詳細" LABEL="enhancement"
-make issue TITLE="バグ報告" BODY="再現手順" LABEL="bug"
-
-# 直接gh CLIを使用
-gh pr create --title "タイトル" --body "本文" --label "ラベル"
-gh issue create --title "タイトル" --body "本文" --label "ラベル"
-```
-
-### 🛠️ その他のコマンド
-
-```bash
-# 利用可能なコマンドを表示
-make help
-
-# キャッシュファイルの削除
-make clean
-
-# セキュリティスキャン
-make security
-
-# 依存関係の脆弱性チェック
-make audit
-```
-
-### 📦 依存関係の管理
-
-```bash
-# ランタイム依存関係を追加
-uv add requests
-
-# 開発依存関係を追加
-uv add --dev pytest-mock
-
-# ドキュメント関連依存関係を追加
-uv sync --extra docs
-
-# すべての依存関係を同期
-uv sync --all-extras
-
-# 依存関係を更新
-uv lock --upgrade
-```
-
-### 🔄 自己改善サイクル
-Claude Code使用時の自動学習・改善プロセス：
-
-1. **パターン検出**: 同じ質問2回で自動FAQ追加
-2. **品質監視**: 再質問率25%超過で改善トリガー
-3. **情報統合**: 新しい知識の体系的な蓄積
-4. **効果測定**: 協働効率の継続的向上
-
-### 🎯 Claude Code最適化機能
-
-**即座に利用可能**:
-- プロジェクトコンテキストの自動把握
-- 型安全な開発環境（PEP 695対応）
-- ワンコマンドGitHub操作（`make pr`、`make issue`）
-- 自動品質チェック・パフォーマンス測定
-- 全コマンドの理解・活用による効率的な操作
-
-**段階的に進化**:
-- プロジェクト固有パターンの学習
-- チーム開発慣習の蓄積
-- トラブルシューティング知識の拡充
-- 最適化されたワークフローの確立
-
-### 📋 協働効率指標
-- 再質問回数：30%減少目標
-- 新規参加者オンボーディング：50%短縮目標
-- コードレビュー指摘事項：40%減少目標
-- 問題解決時間：大幅短縮
-
 ## 📚 ドキュメント階層
 
 ### 🎯 メインドキュメント
@@ -530,11 +384,7 @@ Claude Code使用時の自動学習・改善プロセス：
   - よく使うコマンド・GitHub操作
   - 型ヒント・テスト戦略・セキュリティ
 
-### 🤝 協働・戦略ガイド
-- **[claude-collaboration-guide.md](docs/claude-collaboration-guide.md)** - Claude Code協働の全て
-  - メモリ更新プロトコル・品質管理フレームワーク
-  - 段階的カスタマイズ・動的ルール追加
-  - 効果的なフィードバックループ・継続的改善
+### 🤝 戦略ガイド
 
 ### 🎨 プロジェクトタイプ別ガイド
 - **[ml-project-guide.md](docs/ml-project-guide.md)** - 機械学習プロジェクト
@@ -555,6 +405,7 @@ Claude Code使用時の自動学習・改善プロセス：
 - [ ] **ライセンス選択**: LICENSEファイルを適切なライセンスに更新
 - [ ] **README.md更新**: プロジェクト固有の説明・機能・使用方法
 - [ ] **CLAUDE.md カスタマイズ**: プロジェクト概要をテンプレートから更新
+- [ ] **専門ガイドの追加**: 適宜`docs/`内に詳細なガイドを追加
 
 ### ⚙️ 開発環境・品質設定
 - [ ] **依存関係調整**: プロジェクトに必要な追加パッケージの導入
@@ -569,13 +420,6 @@ Claude Code使用時の自動学習・改善プロセス：
 - [ ] **ステータスチェック**: CI・型チェック・テストの必須化
 - [ ] **Dependabot**: 自動依存関係更新の有効化
 - [ ] **Issues/Projects**: 必要に応じてプロジェクト管理機能の有効化
-- [ ] **Secrets管理**: 必要なAPI키や認証情報の安全な設定
-
-### 📚 ドキュメント・協働設定
-- [ ] **CLAUDE.md詳細化**: プロジェクト固有の開発ルール・制約の追加
-- [ ] **専門ガイド選択**: ML/バックエンドなど該当するガイドのインポート
-- [ ] **チーム規約**: `docs/team-rules.md`などチーム固有ルールの追加
-- [ ] **協働メトリクス**: 効率指標の初期値設定・測定開始
 
 ## 🔧 カスタマイズ
 
@@ -639,17 +483,3 @@ addopts = [
 ## 📄 ライセンス
 
 このテンプレートはMITライセンスの下でリリースされています。詳細は[LICENSE](LICENSE)をご覧ください。
-
-あなたのプロジェクトは任意のライセンスを使用できます - LICENSEファイルを更新するだけです。
-
----
-
-## 🚀 始めましょう
-
-Claude Codeとの協働による、次世代Python開発を体験してください：
-
-1. **このテンプレートを使用** → 「Use this template」ボタンをクリック
-2. **セットアップ実行** → `make setup`で全自動環境構築
-3. **開発開始** → 型安全・高性能・自動品質管理の開発環境を即座に利用
-
-**Happy Coding with Claude! 🤖✨**

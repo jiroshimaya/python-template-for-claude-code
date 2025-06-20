@@ -77,12 +77,11 @@ jobs:
         def test_example_class_operations(benchmark):
             """Benchmark ExampleClass operations."""
             config = ExampleConfig(name="bench", max_items=10000)  # Increase limit
-            instance = ExampleClass(config)
             items = [{"id": i, "name": f"item{i}", "value": random.randint(1, 1000)} for i in range(100)]
 
             def run_operations():
-                # Clear instance data before each benchmark run
-                instance.data.clear()
+                # Create new instance for each benchmark run
+                instance = ExampleClass(config)
                 for item in items:
                     instance.add_item(item)
                 filtered = instance.get_items(filter_key="value", filter_value=500)

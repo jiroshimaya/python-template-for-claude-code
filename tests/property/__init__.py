@@ -1,1 +1,1 @@
-"""Property-based testing module."""
+"""Property-based tests."""
