@@ -43,9 +43,8 @@ claude mcp                      # Model Context Protocol設定
 #### CLIフラグ・オプション
 ```bash
 # モデル設定
-claude --model sonnet           # Claude 3.5 Sonnetを使用
-claude --model opus             # Claude 3 Opusを使用
-claude --model haiku            # Claude 3 Haikuを使用
+claude --model sonnet           # Sonnetを使用
+claude --model opus             # Opusを使用
 
 # セッション管理
 claude --list-sessions          # セッション一覧表示
@@ -356,16 +355,10 @@ project-root/
 │       ├── py.typed             # PEP 561準拠の型情報マーカー
 │       ├── types.py             # プロジェクト共通型定義
 │       ├── core/                # コアロジック
-│       │   └── example.py       # 型ヒント強化済みサンプル
 │       └── utils/               # ユーティリティ
-│           ├── helpers.py       # JSON・リスト・辞書操作
-│           └── profiling.py     # パフォーマンス測定ツール
 ├── tests/                       # テストコード
 │   ├── unit/                    # 単体テスト
-│   │   ├── test_example.py     # 既存テスト
-│   │   └── test_helpers.py     # 全ヘルパー関数テスト
 │   ├── property/                # プロパティベーステスト
-│   │   └── test_helpers_property.py # Hypothesis使用
 │   ├── integration/             # 統合テスト
 │   └── conftest.py              # pytest設定
 ├── docs/                        # ドキュメント
@@ -400,16 +393,14 @@ project-root/
 ## ✅ 新規プロジェクト設定チェックリスト
 
 ### 🔧 基本プロジェクト設定
-- [ ] **プロジェクト名更新**: `make setup`実行またはスクリプトで一括変更
 - [ ] **作者情報更新**: `pyproject.toml`の`authors`セクション
 - [ ] **ライセンス選択**: LICENSEファイルを適切なライセンスに更新
 - [ ] **README.md更新**: プロジェクト固有の説明・機能・使用方法
-- [ ] **CLAUDE.md カスタマイズ**: プロジェクト概要をテンプレートから更新
+- [ ] **CLAUDE.md カスタマイズ**: プロジェクト概要を適宜更新
 - [ ] **専門ガイドの追加**: 適宜`docs/`内に詳細なガイドを追加
 
 ### ⚙️ 開発環境・品質設定
 - [ ] **依存関係調整**: プロジェクトに必要な追加パッケージの導入
-- [ ] **型チェック厳格さ**: 必要に応じて段階的に`mypy`設定を調整
 - [ ] **リントルール**: プロジェクトに合わせた`ruff`設定のカスタマイズ
 - [ ] **テストカバレッジ**: `pytest`カバレッジ要件の調整
 - [ ] **プロファイリング**: パフォーマンス要件に応じたベンチマーク設定
