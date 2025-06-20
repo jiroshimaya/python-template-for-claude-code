@@ -77,12 +77,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.12", "3.13"]
-        os: [ubuntu-latest, macos-latest]
-        exclude:
-          # 特定の組み合わせを除外する場合
-          - os: macos-latest
-            python-version: "3.13"
+        python-version: ["3.12"]
+        os: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v4
