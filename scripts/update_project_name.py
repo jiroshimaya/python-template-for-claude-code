@@ -25,10 +25,7 @@ def get_files_to_update() -> list[Path]:
     """Get list of files that need project name updates."""
     files = [
         "pyproject.toml",
-        "CLAUDE.md",
         "README.md",
-        "tests/conftest.py",
-        "tests/unit/test_example.py",
     ]
 
     # Add optional files if they exist

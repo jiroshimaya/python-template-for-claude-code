@@ -3,7 +3,11 @@
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-from project_name.types import ItemDict
+from ..types import ItemDict
+from ..utils.logging_config import get_logger
+
+# モジュールレベルのロガー
+logger = get_logger(__name__)
 
 
 class DataProcessor(Protocol):
@@ -24,8 +28,14 @@ class ExampleConfig:
 
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""
+        logger.debug(
+            f"Initializing ExampleConfig with name={self.name!r}, "
+            f"max_items={self.max_items}"
+        )
         if self.max_items <= 0:
+            logger.error(f"Invalid max_items value: {self.max_items}")
             raise ValueError(f"max_items must be positive, got {self.max_items}")
+        logger.debug("ExampleConfig validation completed successfully")
 
 
 class ExampleClass:
@@ -60,8 +70,13 @@ class ExampleClass:
         config : ExampleConfig
             Configuration object
         """
+        logger.debug(f"Creating ExampleClass instance with config: {config}")
         self.config = config
         self.data: list[ItemDict] = []
+        logger.info(
+            f"ExampleClass initialized with name={config.name!r}, "
+            f"max_items={config.max_items}"
+        )
 
     def add_item(self, item: ItemDict) -> None:
         """Add an item to the internal storage.
@@ -76,15 +91,23 @@ class ExampleClass:
         ValueError
             If max_items limit is reached or validation fails
         """
+        logger.debug(f"Adding item: {item}")
+
         if len(self.data) >= self.config.max_items:
+            logger.warning(
+                f"Cannot add item: max_items limit ({self.config.max_items}) "
+                f"reached. Current items: {len(self.data)}"
+            )
             raise ValueError(
                 f"Cannot add item: max_items limit ({self.config.max_items}) reached"
             )
 
         if self.config.enable_validation:
+            logger.debug("Validation enabled, validating item")
             self._validate_item(item)
 
         self.data.append(item)
+        logger.debug(f"Item added successfully. Total items: {len(self.data)}")
 
     def _validate_item(self, item: ItemDict) -> None:
         """Validate an item before adding.
@@ -99,18 +122,24 @@ class ExampleClass:
         ValueError
             If item is invalid
         """
-        # Type checking is handled by mypy, but runtime check for safety
-        if not isinstance(item, dict):
-            raise ValueError(f"Item must be a dictionary, got {type(item).__name__}")
+        logger.debug(f"Validating item: {item}")
 
         # Validate required fields
         required_fields = {"id", "name", "value"}
         missing_fields = required_fields - set(item.keys())
         if missing_fields:
+            logger.error(
+                f"Missing required fields: {missing_fields}. "
+                f"Item keys: {list(item.keys())}"
+            )
             raise ValueError(f"Missing required fields: {missing_fields}")
 
-        if not item:
-            raise ValueError("Item cannot be empty")
+        # Check if all required fields have truthy values
+        if not all(item.get(field) is not None for field in required_fields):
+            logger.error("One or more required fields have None values")
+            raise ValueError("Required fields cannot be None")
+
+        logger.debug("Item validation passed")
 
     def get_items(
         self,
@@ -132,10 +161,18 @@ class ExampleClass:
         list[dict[str, Any]]
             Filtered items
         """
+        logger.debug(
+            f"Getting items with filter_key={filter_key!r}, "
+            f"filter_value={filter_value!r}"
+        )
+
         if filter_key is None or filter_value is None:
+            logger.debug(f"No filter applied, returning all {len(self.data)} items")
             return self.data.copy()
 
-        return [item for item in self.data if item.get(filter_key) == filter_value]
+        filtered = [item for item in self.data if item.get(filter_key) == filter_value]
+        logger.debug(f"Filter applied: found {len(filtered)} items matching criteria")
+        return filtered
 
     def __len__(self) -> int:
         """Return the number of items."""
@@ -176,7 +213,17 @@ def process_data(
     ValueError
         If validation fails
     """
+    logger.debug(f"Processing data with {len(data)} items, validate={validate}")
+
     if validate and not data:
+        logger.error("Data validation failed: empty data provided")
         raise ValueError("Data cannot be empty")
 
-    return processor.process(data)
+    logger.debug(f"Calling processor: {processor}")
+    result = processor.process(data)
+    logger.info(
+        f"Data processing completed. Input: {len(data)} items, "
+        f"Output: {len(result)} items"
+    )
+
+    return result

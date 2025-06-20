@@ -1,3 +1,9 @@
-from .core.example import ExampleClass, process_data
+__version__ = "0.1.0"
 
-__all__ = ["ExampleClass", "process_data"]
+
+def hello() -> None:
+    """Hello, world!"""
+    print("Hello, world!")
+
+
+__all__ = ["hello"]
