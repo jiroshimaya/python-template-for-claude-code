@@ -1,6 +1,7 @@
 """Utility helper functions."""
 
 import json
+from collections.abc import Mapping
 from pathlib import Path
 from typing import TypeVar
 
@@ -138,11 +139,11 @@ def chunk_list(items: list[T], chunk_size: int) -> list[list[T]]:
 
 
 def flatten_dict(
-    nested_dict: dict[str, JSONValue],
+    nested_dict: Mapping[str, JSONValue],
     *,
     separator: str = ".",
     prefix: str = "",
-) -> dict[str, JSONValue]:
+) -> Mapping[str, JSONValue]:
     """Flatten a nested dictionary.
 
     Parameters
@@ -156,7 +157,7 @@ def flatten_dict(
 
     Returns
     -------
-    dict[str, JSONValue]
+    Mapping[str, JSONValue]
         Flattened dictionary with dot-notation keys
 
     Examples
