@@ -334,12 +334,12 @@ def test_エッジケース_空リストで空結果():
 ### 開発時のロギング設定
 
 ```python
-# コード実装時は必ずDEBUGモードで開発（template/src/template_package の実装を参照）
+# コード実装時は必ずINFOモード、デバッグ時はDEBUGモードで開発
 from project_name import setup_logging
-setup_logging(level="DEBUG")
+setup_logging(level="INFO")
 
 # または環境変数で設定
-export LOG_LEVEL=DEBUG
+export LOG_LEVEL=INFO
 ```
 
 ### テスト時の設定
@@ -467,9 +467,7 @@ gh issue view 123
 
 ## トラブルシューティング
 
-### よくある問題と解決策
-
-#### 1. pre-commitが失敗する
+### pre-commitが失敗する場合
 
 ```bash
 # キャッシュをクリア
@@ -481,25 +479,11 @@ uv run pre-commit uninstall
 uv run pre-commit install
 ```
 
-#### 2. mypyが大量のエラーを出す
+### ...随時追記してください...
 
-```bash
-# 特定のファイルだけチェック
-uv run mypy src/project_name/specific_module.py
+## FAQ
 
-# 型スタブのインストール
-uv add --dev types-requests types-pyyaml
-```
-
-#### 3. GitHub ActionsでCIが失敗
-
-```bash
-# ローカルで同じ環境を再現
-uv sync
-uv run pytest
-uv run mypy src/ --strict
-uv run ruff check .
-```
+### ...随時追記してください...
 
 ## 詳細ガイドの参照
 

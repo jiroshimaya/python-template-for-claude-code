@@ -360,6 +360,3 @@ def log_performance(logger: BoundLogger) -> Any:
         return wrapper
 
     return decorator
-
-
-# Note: Auto-setup removed to avoid recursion during imports

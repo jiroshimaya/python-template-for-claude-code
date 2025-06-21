@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     # 主要な依存関係をここに記載
+    "structlog>=25.4.0",
+    "rich>=13.7.0",  # structlogのカラフルなコンソール出力用
 ]
 
 [project.optional-dependencies]
@@ -57,8 +59,6 @@ select = [
     "PL",     # Pylint
 ]
 ignore = [
-    "RUF002",
-    "RUF003",
     "G004",
     "F821",
     "C401",
@@ -71,7 +71,7 @@ ignore = [
     "PERF203",
     "PERF401",
     "PLR2004",
-    "PLC2401",  # non-ASCII character in function names (allow Japanese test names)
+    "PLC2401",
 ]
 
 [tool.ruff.lint.per-file-ignores]

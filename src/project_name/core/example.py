@@ -1,10 +1,11 @@
 """Example module with basic functionality."""
 
-import logging
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-logger = logging.getLogger(__name__)
+from ..utils.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -36,11 +37,15 @@ class ExampleClass:
         """Initialize with configuration."""
         self.config = config
         self._items: list[dict[str, Any]] = []
-        logger.info(f"ExampleClass initialized with config: {config.name}")
+        logger.info(
+            "ExampleClass initialized",
+            config_name=config.name,
+            max_items=config.max_items,
+        )
 
     def add_item(self, item: dict[str, Any]) -> None:
         """Add an item to the collection."""
-        logger.debug(f"Adding item: {item}")
+        logger.debug("Adding item", item_id=item.get("id"), item_name=item.get("name"))
 
         if len(self._items) >= self.config.max_items:
             raise ValueError("max_items limit exceeded")
@@ -53,7 +58,11 @@ class ExampleClass:
                 raise ValueError("name cannot be empty")
 
         self._items.append(item)
-        logger.debug(f"Item added successfully. Total items: {len(self._items)}")
+        logger.debug(
+            "Item added successfully",
+            total_items=len(self._items),
+            max_items=self.config.max_items,
+        )
 
     def get_items(
         self,
@@ -61,7 +70,12 @@ class ExampleClass:
         filter_value: Any = None,
     ) -> list[dict[str, Any]]:
         """Get items with optional filtering."""
-        logger.debug(f"Getting items with filter: {filter_key}={filter_value}")
+        logger.debug(
+            "Getting items",
+            filter_key=filter_key,
+            filter_value=filter_value,
+            total_items=len(self._items),
+        )
 
         if filter_key is None:
             return self._items.copy()
@@ -69,7 +83,12 @@ class ExampleClass:
         filtered = [
             item for item in self._items if item.get(filter_key) == filter_value
         ]
-        logger.debug(f"Filtered {len(self._items)} items to {len(filtered)}")
+        logger.debug(
+            "Items filtered",
+            original_count=len(self._items),
+            filtered_count=len(filtered),
+            filter_key=filter_key,
+        )
         return filtered
 
     def __len__(self) -> int:
@@ -90,11 +109,11 @@ def process_data(
     validate: bool = True,
 ) -> list[dict[str, Any]]:
     """Process data using the provided processor."""
-    logger.info(f"Processing {len(data)} items with validation={validate}")
+    logger.info("Processing data", item_count=len(data), validation_enabled=validate)
 
     if validate and not data:
         raise ValueError("Data cannot be empty when validation is enabled")
 
     result = processor.process(data)
-    logger.info(f"Processing completed. {len(result)} items returned")
+    logger.info("Processing completed", input_count=len(data), output_count=len(result))
     return result
