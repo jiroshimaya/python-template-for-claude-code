@@ -3,15 +3,26 @@
 import json
 from collections.abc import Mapping
 from pathlib import Path
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from ..types import JSONObject, JSONValue
-from ..utils.logging_config import get_logger
 
 T = TypeVar("T")
 
-# モジュールレベルのロガー
-logger = get_logger(__name__)
+
+# ロガーを遅延初期化で循環インポートを回避
+def _get_logger() -> Any:
+    try:
+        from ..utils.logging_config import get_logger
+
+        return get_logger(__name__, module="helpers")
+    except ImportError:
+        import logging
+
+        return logging.getLogger(__name__)
+
+
+logger: Any = _get_logger()
 
 
 def load_json_file(filepath: str | Path) -> JSONObject:
@@ -35,31 +46,58 @@ def load_json_file(filepath: str | Path) -> JSONObject:
         If file contains invalid JSON
     """
     path = Path(filepath)
-    logger.debug(f"Loading JSON file from: {path}")
+    logger.debug(
+        "Loading JSON file",
+        file_path=str(path),
+        file_exists=path.exists(),
+        file_size=path.stat().st_size if path.exists() else None,
+    )
 
     if not path.exists():
-        logger.error(f"File not found: {path}")
+        logger.error(
+            "File not found",
+            file_path=str(path),
+            absolute_path=str(path.absolute()),
+        )
         raise FileNotFoundError(f"File not found: {path}")
 
     try:
-        logger.debug(f"Opening file: {path}")
+        logger.debug("Opening file", file_path=str(path))
         with path.open("r", encoding="utf-8") as f:
             result = json.load(f)
-            logger.debug(f"Successfully loaded JSON data from {path}")
+            logger.debug(
+                "Successfully loaded JSON data",
+                file_path=str(path),
+                data_type=type(result).__name__,
+            )
 
             # json.load returns Any, but we expect dict[str, Any]
             if not isinstance(result, dict):
                 type_name = type(result).__name__
                 logger.error(
-                    f"Invalid JSON structure in {path}: expected object, "
-                    f"got {type_name}"
+                    "Invalid JSON structure",
+                    file_path=str(path),
+                    expected_type="object",
+                    actual_type=type_name,
                 )
                 raise ValueError(f"Expected JSON object in {path}, got {type_name}")
 
-            logger.debug(f"JSON object contains {len(result)} keys")
+            logger.debug(
+                "JSON object loaded",
+                file_path=str(path),
+                key_count=len(result),
+                keys=list(result.keys())[:5],  # 最初の5キーのみ
+            )
             return result
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse JSON from {path}: {e}")
+        logger.error(
+            "Failed to parse JSON",
+            file_path=str(path),
+            error_type=type(e).__name__,
+            error_message=str(e),
+            line_number=e.lineno if hasattr(e, "lineno") else None,
+            column_number=e.colno if hasattr(e, "colno") else None,
+        )
         raise ValueError(f"Invalid JSON in {path}: {e}") from e
 
 
@@ -85,18 +123,36 @@ def save_json_file(
     """
     path = Path(filepath)
     logger.debug(
-        f"Saving JSON data to: {path} (indent={indent}, ensure_ascii={ensure_ascii})"
+        "Saving JSON data",
+        file_path=str(path),
+        indent=indent,
+        ensure_ascii=ensure_ascii,
+        key_count=len(data),
     )
 
     # ディレクトリが存在しない場合は作成
     if not path.parent.exists():
-        logger.debug(f"Creating directory: {path.parent}")
+        logger.debug(
+            "Creating directory",
+            directory_path=str(path.parent),
+            directory_exists=path.parent.exists(),
+        )
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.debug(f"Writing {len(data)} keys to {path}")
+    logger.debug(
+        "Writing JSON data",
+        file_path=str(path),
+        key_count=len(data),
+        data_size_estimate=len(str(data)),
+    )
     with path.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=indent, ensure_ascii=ensure_ascii)
-    logger.info(f"Successfully saved JSON file to {path}")
+    logger.info(
+        "JSON file saved successfully",
+        file_path=str(path),
+        file_size=path.stat().st_size if path.exists() else None,
+        key_count=len(data),
+    )
 
 
 def chunk_list(items: list[T], chunk_size: int) -> list[list[T]]:
@@ -124,16 +180,29 @@ def chunk_list(items: list[T], chunk_size: int) -> list[list[T]]:
     >>> chunk_list([1, 2, 3, 4, 5], 2)
     [[1, 2], [3, 4], [5]]
     """
-    logger.debug(
-        f"Chunking list of {len(items)} items into chunks of size {chunk_size}"
-    )
-
     if chunk_size <= 0:
-        logger.error(f"Invalid chunk_size: {chunk_size}")
+        logger.error(
+            "Invalid chunk_size",
+            chunk_size=chunk_size,
+            error="chunk_size must be positive",
+        )
         raise ValueError(f"chunk_size must be positive, got {chunk_size}")
 
+    logger.debug(
+        "Chunking list",
+        item_count=len(items),
+        chunk_size=chunk_size,
+        expected_chunks=(len(items) + chunk_size - 1) // chunk_size if items else 0,
+    )
+
     chunks = [items[i : i + chunk_size] for i in range(0, len(items), chunk_size)]
-    logger.debug(f"Created {len(chunks)} chunks from {len(items)} items")
+    logger.debug(
+        "Chunking completed",
+        input_count=len(items),
+        chunk_count=len(chunks),
+        chunk_size=chunk_size,
+        last_chunk_size=len(chunks[-1]) if chunks else 0,
+    )
 
     return chunks
 
@@ -166,18 +235,32 @@ def flatten_dict(
     {"a.b": 1, "a.c": 2}
     """
     logger.debug(
-        f"Flattening dictionary with {len(nested_dict)} keys, "
-        f"separator={separator!r}, prefix={prefix!r}"
+        "Flattening dictionary",
+        input_keys=len(nested_dict),
+        separator=separator,
+        has_prefix=bool(prefix),
+        prefix=prefix if prefix else None,
     )
 
     items: list[tuple[str, JSONValue]] = []
 
     for key, value in nested_dict.items():
         new_key = f"{prefix}{separator}{key}" if prefix else key
-        logger.debug(f"Processing key: {key!r} -> {new_key!r}")
+        logger.debug(
+            "Processing dictionary key",
+            original_key=key,
+            new_key=new_key,
+            value_type=type(value).__name__,
+            is_nested=isinstance(value, dict),
+        )
 
         if isinstance(value, dict):
-            logger.debug(f"Key {key!r} contains nested dict with {len(value)} keys")
+            logger.debug(
+                "Found nested dictionary",
+                key=key,
+                nested_key_count=len(value),
+                nesting_level=prefix.count(separator) + 1 if prefix else 1,
+            )
             items.extend(
                 flatten_dict(value, separator=separator, prefix=new_key).items()
             )
@@ -185,6 +268,12 @@ def flatten_dict(
             items.append((new_key, value))
 
     result = dict(items)
-    logger.debug(f"Flattened dictionary: {len(nested_dict)} keys -> {len(result)} keys")
+    logger.debug(
+        "Dictionary flattening completed",
+        input_key_count=len(nested_dict),
+        output_key_count=len(result),
+        keys_expanded=len(result) - len(nested_dict),
+        flattening_ratio=round(len(result) / len(nested_dict), 2) if nested_dict else 0,
+    )
 
     return result

@@ -1,11 +1,12 @@
 """Helper functions for common operations."""
 
 import json
-import logging
 from pathlib import Path
 from typing import Any
 
-logger = logging.getLogger(__name__)
+from .logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 def chunk_list(items: list[Any], chunk_size: int) -> list[list[Any]]:
@@ -28,7 +29,7 @@ def chunk_list(items: list[Any], chunk_size: int) -> list[list[Any]]:
     ValueError
         If chunk_size is not positive
     """
-    logger.debug(f"Chunking list of {len(items)} items with chunk_size={chunk_size}")
+    logger.debug("Chunking list", item_count=len(items), chunk_size=chunk_size)
 
     if chunk_size <= 0:
         raise ValueError("Chunk size must be positive")
@@ -42,7 +43,7 @@ def chunk_list(items: list[Any], chunk_size: int) -> list[list[Any]]:
         chunk = items[i : i + chunk_size]
         chunks.append(chunk)
 
-    logger.debug(f"Created {len(chunks)} chunks")
+    logger.debug("Created chunks", chunk_count=len(chunks), item_count=len(items))
     return chunks
 
 
@@ -65,7 +66,11 @@ def flatten_dict(
     dict[str, Any]
         Flattened dictionary
     """
-    logger.debug(f"Flattening dictionary with {len(nested_dict)} top-level keys")
+    logger.debug(
+        "Flattening dictionary",
+        top_level_keys=len(nested_dict),
+        separator=separator,
+    )
 
     result = {}
 
@@ -78,7 +83,11 @@ def flatten_dict(
         else:
             result[new_key] = value
 
-    logger.debug(f"Flattened to {len(result)} keys")
+    logger.debug(
+        "Dictionary flattened",
+        original_keys=len(nested_dict),
+        flattened_keys=len(result),
+    )
     return result
 
 
@@ -100,13 +109,13 @@ def save_json_file(data: Any, file_path: str | Path, indent: int | None = 2) -> 
         If data is not JSON serializable
     """
     path = Path(file_path)
-    logger.debug(f"Saving JSON data to {path}")
+    logger.debug("Saving JSON data", file_path=str(path), indent=indent)
 
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", encoding="utf-8") as f:
             json.dump(data, f, indent=indent, ensure_ascii=False)
-        logger.debug(f"Successfully saved JSON to {path}")
+        logger.debug("Successfully saved JSON", file_path=str(path))
     except (TypeError, ValueError) as e:
         raise ValueError(f"Data is not JSON serializable: {e}") from e
 
@@ -132,7 +141,7 @@ def load_json_file(file_path: str | Path) -> Any:
         If file contains invalid JSON
     """
     path = Path(file_path)
-    logger.debug(f"Loading JSON data from {path}")
+    logger.debug("Loading JSON data", file_path=str(path))
 
     if not path.exists():
         raise FileNotFoundError(f"JSON file not found: {path}")
@@ -140,7 +149,7 @@ def load_json_file(file_path: str | Path) -> Any:
     try:
         with path.open("r", encoding="utf-8") as f:
             data = json.load(f)
-        logger.debug(f"Successfully loaded JSON from {path}")
+        logger.debug("Successfully loaded JSON", file_path=str(path))
         return data
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid JSON in file {path}: {e}") from e

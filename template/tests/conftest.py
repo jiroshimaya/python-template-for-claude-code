@@ -9,7 +9,7 @@ from typing import Any
 
 import pytest
 from template_package.core.example import ExampleClass, ExampleConfig
-from template_package.utils.logging_config import set_log_level, setup_logging
+from template_package.utils.logging_config import set_log_level
 
 
 @pytest.fixture
@@ -56,10 +56,16 @@ def reset_environment(monkeypatch: pytest.MonkeyPatch) -> None:
 
 @pytest.fixture(scope="session")
 def setup_test_logging() -> None:
-    """Setup logging for test session with DEBUG level by default."""
-    # テスト中はデフォルトでDEBUGレベル
-    log_level = os.environ.get("TEST_LOG_LEVEL", "DEBUG")
-    setup_logging(level=log_level, force=True)
+    """Setup basic logging for test session."""
+    # テスト中は標準ライブラリのロギングを使用
+    import logging
+
+    log_level = os.environ.get("TEST_LOG_LEVEL", "INFO")
+    logging.basicConfig(
+        level=getattr(logging, log_level),
+        format="[%(levelname)s] %(name)s: %(message)s",
+        force=True,
+    )
 
 
 @pytest.fixture
@@ -82,7 +88,15 @@ def set_test_log_level():
 
 # pytestの起動時にロギングを設定
 def pytest_configure(config: pytest.Config) -> None:
-    """Configure pytest with logging setup."""
-    # テスト実行時のDEBUGログ設定
-    log_level = os.environ.get("TEST_LOG_LEVEL", "DEBUG")
-    setup_logging(level=log_level, force=True)
+    """Configure pytest with structured logging setup."""
+    # テスト実行時の最小限のログ設定
+    log_level = os.environ.get("TEST_LOG_LEVEL", "INFO")  # DEBUGだと詳細すぎる
+
+    # 標準ライブラリのロギングのみを使用（structlogの問題を回避）
+    import logging
+
+    logging.basicConfig(
+        level=getattr(logging, log_level),
+        format="[%(levelname)s] %(name)s: %(message)s",
+        force=True,
+    )
