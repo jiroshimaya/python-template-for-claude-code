@@ -91,12 +91,14 @@ pr:
 		echo "Error: BODY is required. Usage: make pr TITLE=\"タイトル\" BODY=\"本文\" [LABEL=\"ラベル\"]"; \
 		exit 1; \
 	fi
-	@TITLE="$(TITLE)" BODY="$(BODY)" LABEL="$(LABEL)" bash -c '\
-		if [ -n "$$LABEL" ]; then \
-			gh pr create --title "$$TITLE" --body "$$BODY" --label "$$LABEL"; \
-		else \
-			gh pr create --title "$$TITLE" --body "$$BODY"; \
-		fi'
+	@export GH_PR_TITLE="$(TITLE)"; \
+	export GH_PR_BODY="$(BODY)"; \
+	export GH_PR_LABEL="$(LABEL)"; \
+	if [ -n "$$GH_PR_LABEL" ]; then \
+		gh pr create --title "$$GH_PR_TITLE" --body "$$GH_PR_BODY" --label "$$GH_PR_LABEL"; \
+	else \
+		gh pr create --title "$$GH_PR_TITLE" --body "$$GH_PR_BODY"; \
+	fi
 
 issue:
 	@if [ -z "$(TITLE)" ]; then \
@@ -107,12 +109,14 @@ issue:
 		echo "Error: BODY is required. Usage: make issue TITLE=\"タイトル\" BODY=\"本文\" [LABEL=\"ラベル\"]"; \
 		exit 1; \
 	fi
-	@TITLE="$(TITLE)" BODY="$(BODY)" LABEL="$(LABEL)" bash -c '\
-		if [ -n "$$LABEL" ]; then \
-			gh issue create --title "$$TITLE" --body "$$BODY" --label "$$LABEL"; \
-		else \
-			gh issue create --title "$$TITLE" --body "$$BODY"; \
-		fi'
+	@export GH_ISSUE_TITLE="$(TITLE)"; \
+	export GH_ISSUE_BODY="$(BODY)"; \
+	export GH_ISSUE_LABEL="$(LABEL)"; \
+	if [ -n "$$GH_ISSUE_LABEL" ]; then \
+		gh issue create --title "$$GH_ISSUE_TITLE" --body "$$GH_ISSUE_BODY" --label "$$GH_ISSUE_LABEL"; \
+	else \
+		gh issue create --title "$$GH_ISSUE_TITLE" --body "$$GH_ISSUE_BODY"; \
+	fi
 
 # クリーンアップ
 clean:
