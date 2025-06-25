@@ -15,12 +15,6 @@ updated_at: 2025-06-20
 
 **重要**: プロジェクト初期化時のTODO:
 - [ ] この項目（「プロジェクト概要」セクション）をプロジェクトに特化したものに更新
-- [ ] パッケージ、テスト、ベンチマークのCIに存在するサンプルコードを削除する
-    - [ ] @src/project_name/core/example.py を削除
-    - [ ] @src/project_name/utils/helpers.py を削除
-    - [ ] @tests/unit/test_example.py を削除
-    - [ ] @tests/conftest.py を削除
-    - [ ] @.github/workflows/benchmark.yml を削除
 - [ ] このTODOを削除する
 
 ## 技術スタック
@@ -58,15 +52,10 @@ project-root/
 │   │           ├── logging_config.py # ロギング設定の実装例
 │   │           └── profiling.py # パフォーマンス測定の実装例
 │   └── tests/                   # テストコードの完全な実装例
-│       ├── unit/                # 単体テストの例
-│       │   ├── test_example.py  # クラステストの例
-│       │   ├── test_helpers.py  # 関数テストの例
-│       │   └── test_logging.py  # ロギングテストの例
-│       ├── property/            # プロパティベーステストの例
-│       │   └── test_helpers_property.py
-│       ├── integration/         # 結合テストの例
-│       │   └── test_example.py
-│       └── conftest.py          # pytestフィクスチャの例
+│       ├── unit/                # 単体テスト
+│       ├── property/            # プロパティベーステスト
+│       ├── integration/         # 結合テスト
+│       └── conftest.py          # pytestフィクスチャ
 ├── src/                         # 実際の開発用ディレクトリ
 │       └── project_name/    # モデルパッケージの完全な実装例
 │           └── （プロジェクト固有のパッケージを配置）
@@ -285,6 +274,136 @@ if not config_file.exists():
 ```
 
 ## テスト戦略
+
+**t-wada流のテスト駆動開発（TDD）を徹底してください。**
+
+### TDD TODOリスト（t-wada流）
+
+#### 基本方針
+
+- 🔴 Red: 失敗するテストを書く
+- 🟢 Green: テストを通す最小限の実装
+- 🔵 Refactor: リファクタリング
+- 小さなステップで進める
+- 仮実装（ベタ書き）から始める
+- 三角測量で一般化する
+- 明白な実装が分かる場合は直接実装してもOK
+- テストリストを常に更新する
+- 不安なところからテストを書く
+
+#### TDDの実施手順
+
+1. **TODOリストの作成**
+   ```
+   [ ] 実装したい機能をリストアップ
+   [ ] 不安な部分、エッジケースも追加
+   [ ] 最小単位に分解
+   ```
+
+2. **Red フェーズ**
+   ```python
+   # 1. 失敗するテストを書く
+   def test_新機能が期待通り動作する():
+       result = new_function(input_data)
+       assert result == expected_output  # まだ実装していないので失敗
+   ```
+
+3. **Green フェーズ**
+   ```python
+   # 2. テストを通す最小限の実装
+   def new_function(input_data):
+       return expected_output  # 仮実装（ベタ書き）
+   ```
+
+4. **Refactor フェーズ**
+   ```python
+   # 3. リファクタリング（テストが通ることを確認しながら）
+   def new_function(input_data):
+       # 実際のロジックに置き換える
+       processed = process_data(input_data)
+       return format_output(processed)
+   ```
+
+#### 三角測量の例
+
+```python
+# Step 1: 最初のテスト（ベタ書きで通す）
+def test_add_正の数():
+    assert add(2, 3) == 5
+
+def add(a, b):
+    return 5  # 仮実装
+
+# Step 2: 2つ目のテスト（一般化を促す）
+def test_add_別の正の数():
+    assert add(1, 4) == 5
+    assert add(10, 20) == 30  # これで仮実装では通らない
+
+def add(a, b):
+    return a + b  # 一般化
+
+# Step 3: エッジケースを追加
+def test_add_負の数():
+    assert add(-1, -2) == -3
+    assert add(-5, 3) == -2
+```
+
+#### TDD実践時の注意点
+
+1. **テストは1つずつ追加**
+   - 一度に複数のテストを書かない
+   - 各テストが失敗することを確認してから実装
+
+2. **コミットのタイミング**
+   - Red → Green: テストが通ったらコミット
+   - Refactor: リファクタリング完了でコミット
+   - 小さく頻繁にコミットする
+
+3. **テストの粒度**
+   - 最小単位でテストを書く
+   - 1つのテストで1つの振る舞いをテスト
+   - テスト名は日本語で意図を明確に
+
+4. **リファクタリングの判断**
+   - 重複コードがある
+   - 可読性が低い
+   - 設計原則（SOLID等）に違反
+   - パフォーマンスの問題（測定してから）
+
+5. **テストファーストの実践**
+   - 必ず失敗するテストから書く
+   - `make test`で失敗を確認
+   - 最小限の実装でテストを通す
+
+6. **段階的な実装**
+   - TODOリストを1つずつ消化
+   - 各ステップでテストが通ることを確認
+   - リファクタリング時もテストを実行
+
+### TDDサイクルの記録
+
+実装時は以下のフォーマットでTDDサイクルを記録してください：
+
+```markdown
+## 機能: ユーザー認証システム
+
+### TODOリスト
+- [x] ユーザー名とパスワードで認証できる
+- [x] 不正な認証情報でエラーを返す
+- [ ] パスワードのハッシュ化
+- [ ] セッション管理
+- [ ] ログアウト機能
+
+### サイクル1: 基本的な認証
+🔴 Red: test_正常系_有効な認証情報でTrue()
+🟢 Green: return True（仮実装）
+🔵 Refactor: 実際の認証ロジックを実装
+
+### サイクル2: エラーハンドリング
+🔴 Red: test_異常系_無効な認証情報でFalse()
+🟢 Green: if文で条件分岐
+🔵 Refactor: エラーメッセージの改善
+```
 
 詳細は @template/tests/ にある実装を適宜参照してください。
 
@@ -517,3 +636,17 @@ FastAPI を使用したバックエンドプロジェクトの場合、@docs/bac
 
 プロジェクト固有の要件に応じて、追加のガイドを`docs/` ディレクトリに作成できます。
 例: フロントエンドプロジェクトのガイド(`docs/frontend-project-guide.md`), チーム固有のルール(`docs/team-specific-guide.md`)など
+
+## TDD TODOリスト（t-wada流）
+
+### 基本方針
+
+- 🔴 Red: 失敗するテストを書く
+- 🟢 Green: テストを通す最小限の実装
+- 🔵 Refactor: リファクタリング
+- 小さなステップで進める
+- 仮実装（ベタ書き）から始める
+- 三角測量で一般化する
+- 明白な実装が分かる場合は直接実装してもOK
+- テストリストを常に更新する
+- 不安なところからテストを書く
