@@ -114,6 +114,15 @@ check_claude_code() {
     print_success "Claude Code checked"
 }
 
+check_gemini_cli() {
+    print_step "Installing Gemini CLI..."
+    npm install -g @google/gemini-cli
+    print_success "Gemini CLI installed"
+    print_step "Checking Gemini CLI..."
+    gemini --version
+    print_success "Gemini CLI checked"
+}
+
 # Get project name from user
 get_project_name() {
     echo "Current directory: $(pwd)"
@@ -229,14 +238,17 @@ main() {
     check_uv
     check_npm
     check_claude_code
+    check_gemini_cli
     check_github_cli
 
-    # Get project configuration
-    get_project_name
-    echo
+    # Rename project if needed
+    if [ -d "src/project_name" ]; then
+        get_project_name
+        echo
+        update_project_name
+    fi
 
     # Perform setup
-    update_project_name
     setup_python
     setup_precommit
     init_git
@@ -246,8 +258,8 @@ main() {
     echo "✨ Setup complete!"
     echo
     echo "Next steps:"
-    echo "1. Update the README.md with your project description"
-    echo "2. Update author information in pyproject.toml"
+    echo "1. Authorize Claude Code and Gemini CLI"
+    echo "2. Initialize project via `/initialize-project` via Claude Code"
     echo "3. Set up branch protection (optional):"
     echo "   gh repo view --web  # Open in browser to configure"
     echo "4. Start coding! 🎉"
