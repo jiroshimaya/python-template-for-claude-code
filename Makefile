@@ -91,11 +91,12 @@ pr:
 		echo "Error: BODY is required. Usage: make pr TITLE=\"タイトル\" BODY=\"本文\" [LABEL=\"ラベル\"]"; \
 		exit 1; \
 	fi
-	@if [ -n "$(LABEL)" ]; then \
-		gh pr create --title "$(TITLE)" --body "$(BODY)" --label "$(LABEL)"; \
-	else \
-		gh pr create --title "$(TITLE)" --body "$(BODY)"; \
-	fi
+	@TITLE="$(TITLE)" BODY="$(BODY)" LABEL="$(LABEL)" bash -c '\
+		if [ -n "$$LABEL" ]; then \
+			gh pr create --title "$$TITLE" --body "$$BODY" --label "$$LABEL"; \
+		else \
+			gh pr create --title "$$TITLE" --body "$$BODY"; \
+		fi'
 
 issue:
 	@if [ -z "$(TITLE)" ]; then \
@@ -106,11 +107,12 @@ issue:
 		echo "Error: BODY is required. Usage: make issue TITLE=\"タイトル\" BODY=\"本文\" [LABEL=\"ラベル\"]"; \
 		exit 1; \
 	fi
-	@if [ -n "$(LABEL)" ]; then \
-		gh issue create --title "$(TITLE)" --body "$(BODY)" --label "$(LABEL)"; \
-	else \
-		gh issue create --title "$(TITLE)" --body "$(BODY)"; \
-	fi
+	@TITLE="$(TITLE)" BODY="$(BODY)" LABEL="$(LABEL)" bash -c '\
+		if [ -n "$$LABEL" ]; then \
+			gh issue create --title "$$TITLE" --body "$$BODY" --label "$$LABEL"; \
+		else \
+			gh issue create --title "$$TITLE" --body "$$BODY"; \
+		fi'
 
 # クリーンアップ
 clean:
