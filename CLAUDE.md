@@ -165,7 +165,9 @@ project-root/
 "Security scan using bandit detected 0 issues, with no critical findings"
 ```
 
-### 効率的なコミュニケーション記法
+### 7. 開発効率化のためのテクニックを遵守する
+
+#### コミュニケーション記法
 
 開発の効率化のため、以下の記号体系を活用してください。
 
@@ -181,9 +183,7 @@ project-root/
 
 例: `analyze→fix→test` = 分析してから修正し、その後テストする
 
-### 効率的な実行パターン
-
-**実行優先順位**:
+#### 実行パターン
 
 1. **並列処理** (独立したタスクは同時実行):
    - 適用条件: ファイル間の依存関係なし、リソース競合なし、順序依存なし
@@ -197,7 +197,7 @@ project-root/
    - 適用条件: 依存関係あり、状態変更を伴う、トランザクション処理
    - 例: データベースマイグレーション、段階的リファクタリング、依存パッケージインストール
 
-**エラーリカバリー**:
+#### エラーリカバリー
 
 1. **自動リトライ**:
    - 対象: 一時的なネットワークエラー、リソース競合、タイムアウト
@@ -211,7 +211,7 @@ project-root/
    - チェックポイント: 操作前の状態を保存、部分的な成功を記録、ロールバック可能
    - リカバリー: 最後の正常状態から再開、失敗した操作のみ再実行、代替アプローチの提案
 
-### 建設的フィードバックの提供
+#### 建設的フィードバックの提供
 
 **フィードバックのトリガー**:
 - 非効率なアプローチを検出
@@ -232,7 +232,7 @@ project-root/
 
 ## `template/`ディレクトリにあるモデルケースの参照
 
-@template/ ディレクトリには、Python開発のベストプラクティスを示すモデルコードが含まれています。実装時の参考として積極的に活用してください。
+`template/` ディレクトリには、Python開発のベストプラクティスを示すモデルコードが含まれています。実装時の参考として積極的に活用してください。
 
 ### モデルコード参照の推奨場面
 
@@ -278,7 +278,6 @@ make audit                  # 依存関係の脆弱性チェック（pip-audit�
 
 # パフォーマンス測定
 make benchmark              # ローカルベンチマーク実行
-make profile                # プロファイリング実行
 
 # 統合チェック
 make check                  # format, lint, typecheck, testを順番に実行
@@ -299,11 +298,29 @@ uv add --dev dev_package_name      # 開発依存関係
 uv lock --upgrade                  # 依存関係を更新
 ```
 
+## GitHubに関する規則
+
+### ブランチ名の命名規則
+
+- 機能追加: `feature/...`
+- バグ修正: `fix/...`
+- リファクタリング: `refactor/...`
+- ドキュメント更新: `docs/...`
+- テスト: `test/...`
+
+### ラベル名の命名規則
+
+- 機能追加: `enhancement`
+- バグ修正: `bug`
+- リファクタリング: `refactor`
+- ドキュメント更新: `documentation`
+- テスト: `test`
+
 ## コーディング規約
 
 ### ディレクトリ構成
 
-パッケージとテストは @template/ 内の構造を踏襲します。コアロジックは必ず `src/project_name` 内に配置してください。
+パッケージとテストは `template/` 内の構造を踏襲します。コアロジックは必ず `src/project_name` 内に配置してください。
 
 ```
 src/
@@ -511,7 +528,7 @@ def test_add_負の数():
 🔵 Refactor: エラーメッセージの改善
 ```
 
-詳細は @template/tests/ にある実装を適宜参照してください。
+詳細は `template/tests/` にある実装を適宜参照してください。
 
 ### テストの種類
 
@@ -554,7 +571,7 @@ def test_エッジケース_空リストで空結果():
     - **WARNING**: 異常ではないが注意が必要な状況
     - **ERROR**: エラー発生時（必ずexc_info=Trueを付ける）
 
-詳細は @template/src/template_package/utils/logging_config.py や @template/src/template_package にある実装を適宜参照してください。
+詳細は @template/src/template_package/utils/logging_config.py や @template/src/template_package/core/example.py にある実装を適宜参照してください。
 
 ### 開発時のロギング設定
 
@@ -581,10 +598,10 @@ def test_with_custom_log_level(set_test_log_level):
 
 ## パフォーマンス測定とベンチマーク
 
-### プロファイリングツールの使用
+以下に適切なパフォーマンス測定の例を示します。
+詳細は @template/src/template_package/utils/profiling.py を参照してください。
 
 ```python
-# template/src/template_package/utils/profiling.py を参照
 from project_name.utils.profiling import profile, timeit, Timer, profile_context
 
 # 関数デコレーター
@@ -604,68 +621,6 @@ print(f"Took {timer.elapsed:.4f} seconds")
 # 詳細プロファイリング
 with profile_context(sort_by="cumulative", limit=10) as prof:
     complex_operation()
-```
-
-## GitHub操作
-
-Claude Codeは `gh` コマンドを使用してGitHub操作を行うことができます。
-
-### プルリクエスト作成
-
-#### ブランチ名の命名規則
-
-- 機能追加: `feature/...`
-- バグ修正: `fix/...`
-- リファクタリング: `refactor/...`
-- ドキュメント更新: `docs/...`
-- テスト: `test/...`
-
-#### ラベル名の命名規則
-
-- 機能追加: `enhancement`
-- バグ修正: `bug`
-- リファクタリング: `refactor`
-- ドキュメント更新: `documentation`
-- テスト: `test`
-
-#### コマンドの例
-
-```bash
-# Makefileコマンドを使用したPR作成
-make pr TITLE="機能追加" BODY="新しい機能を実装しました" LABEL="enhancement"
-make pr TITLE="認証エラー修正" BODY="ログイン時の500エラーを修正" LABEL="bug"
-make pr TITLE="ドキュメント更新" BODY="READMEを更新しました" LABEL="documentation"
-
-# ラベルなしでPR作成
-make pr TITLE="リファクタリング" BODY="コードの可読性を向上させました"
-
-# 直接gh CLIを使用する場合
-gh pr create --title "Feature: Add new functionality" --body "Description of changes"
-
-# ドラフトPRの作成
-gh pr create --draft --title "WIP: Working on feature" --body "Description of changes"
-```
-
-### イシュー管理
-
-```bash
-# Makefileコマンドを使用したイシューの作成
-make issue TITLE="認証の不具合" BODY="ログイン時にエラーが発生します" LABEL="bug"
-make issue TITLE="新機能の提案" BODY="〜の機能があると便利です" LABEL="enhancement"
-make issue TITLE="Claude Code改善" BODY="〜の部分で改善が必要です" LABEL="documentation"
-make issue TITLE="質問" BODY="〜について教えてください" LABEL="question"
-
-# ラベルなしでイシュー作成
-make issue TITLE="一般的な改善提案" BODY="〜を改善してはどうでしょうか"
-
-# 直接gh CLIを使用する場合
-gh issue create --title "Bug: Fix authentication" --body "Description"
-
-# イシューの一覧表示
-gh issue list
-
-# イシューの詳細表示
-gh issue view 123
 ```
 
 ## CLAUDE.md自動更新トリガー
