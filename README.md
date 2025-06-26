@@ -183,30 +183,6 @@ Claude Codeの対話モード（REPL）中に使用できるコマンドです�
 
 このプロジェクトには、開発効率を向上させるための独自のスラッシュコマンドが含まれています。これらは`.claude/commands/`ディレクトリに定義されています。
 
-##### /gemini-documentation
-Gemini AIを使用してドキュメントの作成や校正を行います。Geminiは文章作成に優れているため、技術文書の品質向上に活用できます。
-
-使用例：
-- /gemini-documentation README.mdを校正
-- /gemini-documentation APIドキュメントを作成
-- /gemini-documentation ユーザーガイドを更新
-
-##### /gemini-search
-Gemini AIを使用してWeb検索を実行します。最新の技術情報や解決策を検索する際に便利です。
-
-使用例：
-- /gemini-search Python 3.13の新機能
-- /gemini-search FastAPIのベストプラクティス
-- /gemini-search 型ヒントの高度な使い方
-
-##### /initialize-project
-テンプレートリポジトリから新しいプロジェクトを初期化する際の設定作業を自動化します。プロジェクト固有の情報でCLAUDE.mdやpyproject.tomlを更新します。
-
-使用例：
-- /initialize-project
-
-このコマンドは対話的に実行され、プロジェクトの概要やタイプに応じて適切な設定を行います。
-
 ##### /ensure-quality
 `make check-all`が成功するまで自動的にコードを修正し、コード品質を保証します。フォーマット、リント、型チェック、テストを順番に実行し、エラーを自動修正します。
 
@@ -238,6 +214,127 @@ Red-Green-Refactorサイクルに従い、単体テスト、プロパティベ�
 - /safe-refactor
 
 小さなステップで進め、各変更後にテストを実行して動作を確認します。
+
+##### /analyze - 多次元コード分析
+コード、アーキテクチャ、セキュリティ、パフォーマンスの包括的な分析を行います。
+
+オプション：
+- `--code`: コード品質の分析（命名規則、複雑性、DRY原則、型カバレッジ）
+- `--arch`: アーキテクチャの分析（結合度、依存関係、設計パターン）
+- `--security`: OWASP Top 10準拠のセキュリティ監査
+- `--perf`: パフォーマンス分析（時間計算量、メモリ効率、I/O最適化）
+- `--think`, `--think-hard`, `--ultrathink`: 分析の深度を指定
+
+使用例：
+```
+/analyze --code --security --think-hard
+/analyze --perf --ultrathink src/core/
+```
+
+##### /improve - エビデンスベースの改善
+測定可能な証拠に基づいてコードを改善します。改善前後のメトリクスを提供します。
+
+オプション：
+- `--quality`: コード品質の改善（可読性、保守性、エラーハンドリング）
+- `--perf`: パフォーマンスの最適化（アルゴリズム、メモリ、I/O）
+- `--arch`: アーキテクチャの改善（設計パターン、依存性注入）
+- `--iterate`: 指定された閾値まで繰り返し改善
+- `--metrics`: 改善前後のメトリクスを表示
+- `--threshold`: 品質閾値（low, medium, high, perfect）
+
+使用例：
+```
+/improve --quality --metrics
+/improve --perf --iterate --threshold high
+```
+
+##### /task - 複雑タスク管理
+複雑なタスクを自動的に分解し、階層的に管理します（Epic→Story→Task→Subtask）。
+
+操作：
+- `:create "<タスク名>"`: タスクの作成と自動分解
+- `:status`: 全タスクの状態確認
+- `:resume`: 中断したタスクの再開
+- `:update <task-id>`: タスクの更新
+- `:complete <task-id>`: タスクの完了
+
+使用例：
+```
+/task :create "認証システムの実装"
+/task :status
+/task :complete AUTH-001
+```
+
+##### /troubleshoot - 体系的デバッグ
+エラーの根本原因分析と修正を行います。Five Whys手法を活用します。
+
+オプション：
+- `--fix`: 修正案の実装
+- `--deep`: Five Whys分析
+- `--prod`: 本番環境向け分析
+- `--interactive`: 対話的トラブルシューティング
+
+使用例：
+```
+/troubleshoot "ImportError: No module named 'mypackage'"
+/troubleshoot --deep --fix
+```
+
+##### /scan - セキュリティ・品質検証
+OWASP準拠のセキュリティスキャンと品質メトリクスの包括的チェックを実行します。
+
+オプション：
+- `--security`: セキュリティ脆弱性スキャン
+- `--quality`: 品質メトリクスチェック
+- `--full`: 完全スキャン（セキュリティ＋品質）
+- `--fix`: 問題の自動修正
+
+使用例：
+```
+/scan --security --full
+/scan --fix
+```
+
+##### /gemini-documentation
+Gemini AIを使用してドキュメントの作成や校正を行います。Geminiは文章作成に優れているため、技術文書の品質向上に活用できます。
+
+使用例：
+- /gemini-documentation README.mdを校正
+- /gemini-documentation APIドキュメントを作成
+- /gemini-documentation ユーザーガイドを更新
+
+##### /gemini-search
+Gemini AIを使用してWeb検索を実行します。最新の技術情報や解決策を検索する際に便利です。
+
+使用例：
+- /gemini-search Python 3.13の新機能
+- /gemini-search FastAPIのベストプラクティス
+- /gemini-search 型ヒントの高度な使い方
+
+#### 🔄 ワークフロー統合
+
+これらのカスタムコマンドは相互に連携し、効果的な開発フローを実現します：
+
+**推奨ワークフロー例：**
+```bash
+# 1. 初期分析
+/analyze --code --arch
+
+# 2. 品質改善
+/improve --quality --metrics
+
+# 3. テスト作成
+/write-tests
+
+# 4. 品質保証
+/ensure-quality
+
+# 5. セキュリティチェック
+/scan --security --full
+
+# 6. コミットとPR
+/commit-and-pr
+```
 
 ---
 
