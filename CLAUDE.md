@@ -1,7 +1,7 @@
 ---
 title: CLAUDE.md
 created_at: 2025-06-14
-updated_at: 2025-06-20
+updated_at: 2025-06-26
 # このプロパティは、Claude Codeが関連するドキュメントの更新を検知するために必要です。消去しないでください。
 ---
 
@@ -116,6 +116,120 @@ project-root/
 - **テストファースト**: 実装前にテストを作成
 - **段階的実装**: 最小限の実装→リファクタリング→最適化の順序
 
+### 6. エビデンスベースで開発する
+
+コード品質や性能に関する主張は、必ず測定可能な証拠に基づいて行ってください。
+
+**禁止される曖昧な表現**:
+- `best`, `optimal`, `faster`, `secure`, `better`, `improved`, `enhanced`, `always`, `never`, `guaranteed`, `perfect`, `flawless`
+
+**推奨される具体的な表現**:
+- `may`, `could`, `potentially`, `typically`, `often`, `sometimes`, `measured`, `documented`, `approximately`, `estimated`, `observed`, `reported`
+
+**必須の証拠要件**:
+
+1. **パフォーマンス**:
+   - `benchmarks show`
+   - `profiling indicates`
+   - `measured at Xms`
+   - `reduces time by X%`
+
+2. **品質**:
+   - `testing confirms`
+   - `coverage increased to X%`
+   - `complexity reduced from X to Y`
+   - `metrics show`
+
+3. **セキュリティ**:
+   - `audit reveals`
+   - `scan detected`
+   - `OWASP compliant`
+   - `CVE database shows`
+
+4. **信頼性**:
+   - `uptime of X%`
+   - `error rate of X%`
+   - `MTBF of X hours`
+   - `recovery time of X seconds`
+
+**エビデンスベースの主張テンプレート**:
+
+```python
+# パフォーマンスの主張
+"Performance testing shows response time of 45ms, which is 25% lower than the baseline of 60ms"
+
+# 品質の主張
+"Code analysis reveals cyclomatic complexity of 5, indicating maintainable code structure"
+
+# セキュリティの主張
+"Security scan using bandit detected 0 issues, with no critical findings"
+```
+
+### 効率的なコミュニケーション記法
+
+開発の効率化のため、以下の記号体系を活用してください。
+
+```yaml
+記号体系:
+  →: "leads to/flows to"  # 処理の流れ
+  |: "separator/or"       # 区切り・選択
+  &: "combine/and"        # 結合・並列
+  :: "define/is"          # 定義
+  »: "sequence/then"      # シーケンス
+  @: "location/reference" # 場所・参照
+```
+
+例: `analyze→fix→test` = 分析してから修正し、その後テストする
+
+### 効率的な実行パターン
+
+**実行優先順位**:
+
+1. **並列処理** (独立したタスクは同時実行):
+   - 適用条件: ファイル間の依存関係なし、リソース競合なし、順序依存なし
+   - 例: 複数ファイルの読み込み、独立したテストの実行、並列ビルド
+
+2. **バッチ処理** (類似操作をまとめて実行):
+   - 適用条件: 同じ種類の操作、共通のリソース使用、効率化可能
+   - 例: 複数ファイルのフォーマット、一括インポート修正、バッチテスト実行
+
+3. **逐次処理** (順序を守って実行):
+   - 適用条件: 依存関係あり、状態変更を伴う、トランザクション処理
+   - 例: データベースマイグレーション、段階的リファクタリング、依存パッケージインストール
+
+**エラーリカバリー**:
+
+1. **自動リトライ**:
+   - 対象: 一時的なネットワークエラー、リソース競合、タイムアウト
+   - 戦略: 指数バックオフ、最大3回まで、代替手段の試行
+
+2. **フォールバック**:
+   - パターン: primary（高速だが失敗する可能性）→ fallback（遅いが確実）
+   - 例: 並列処理 → 逐次処理、キャッシュ → 再計算、最適化 → 基本実装
+
+3. **状態復元**:
+   - チェックポイント: 操作前の状態を保存、部分的な成功を記録、ロールバック可能
+   - リカバリー: 最後の正常状態から再開、失敗した操作のみ再実行、代替アプローチの提案
+
+### 建設的フィードバックの提供
+
+**フィードバックのトリガー**:
+- 非効率なアプローチを検出
+- セキュリティリスクを発見
+- 過剰設計を認識
+- 不適切な実践を確認
+
+**アプローチ**:
+- 直接的な表現 > 婉曲的な表現
+- エビデンスベースの代替案 > 単なる批判
+- 例: "より効率的な方法: X" | "セキュリティリスク: SQLインジェクション"
+
+**条件分岐と並列ワークフロー**:
+- 成功時: 次のステップへ自動進行
+- 失敗時: エラーハンドリングとトラブルシューティング
+- 警告時: 確認後続行またはスキップ
+- 並列実行: セキュリティスキャン & 品質チェック & パフォーマンステスト
+
 ## `template/`ディレクトリにあるモデルケースの参照
 
 @template/ ディレクトリには、Python開発のベストプラクティスを示すモデルコードが含まれています。実装時の参考として積極的に活用してください。
@@ -169,10 +283,6 @@ make profile                # プロファイリング実行
 # 統合チェック
 make check                  # format, lint, typecheck, testを順番に実行
 make check-all              # pre-commitで全ファイルをチェック
-
-# パフォーマンス測定
-make benchmark              # ローカルベンチマーク実行
-make profile                # プロファイリング実行
 
 # GitHub操作
 make pr TITLE="タイトル" BODY="本文" [LABEL="ラベル"]      # PR作成
@@ -273,7 +383,7 @@ if not config_file.exists():
 
 **t-wada流のテスト駆動開発（TDD）を徹底してください。**
 
-### TDD TODOリスト（t-wada流）
+### TDD （t-wada流）
 
 #### 基本方針
 
@@ -496,13 +606,6 @@ with profile_context(sort_by="cumulative", limit=10) as prof:
     complex_operation()
 ```
 
-### ベンチマーク自動化
-
-GitHub Actionsで自動ベンチマークが実行されます：
-- PR作成時にパフォーマンス比較
-- 10%以上の性能低下でアラート
-- ベンチマーク結果をPRコメントに自動投稿
-
 ## GitHub操作
 
 Claude Codeは `gh` コマンドを使用してGitHub操作を行うことができます。
@@ -594,6 +697,20 @@ uv run pre-commit uninstall
 uv run pre-commit install
 ```
 
+### テスト失敗の調査
+
+```bash
+# 失敗したテストの詳細確認
+make test-unit PYTEST_ARGS="-vvs -k test_name"
+
+# デバッグモードで実行
+export LOG_LEVEL=DEBUG
+make test
+
+# カバレッジ確認
+make test-cov
+```
+
 ### ...随時追記してください...
 
 ## FAQ
@@ -632,17 +749,3 @@ FastAPI を使用したバックエンドプロジェクトの場合、@docs/bac
 
 プロジェクト固有の要件に応じて、追加のガイドを`docs/` ディレクトリに作成できます。
 例: フロントエンドプロジェクトのガイド(`docs/frontend-project-guide.md`), チーム固有のルール(`docs/team-specific-guide.md`)など
-
-## TDD TODOリスト（t-wada流）
-
-### 基本方針
-
-- 🔴 Red: 失敗するテストを書く
-- 🟢 Green: テストを通す最小限の実装
-- 🔵 Refactor: リファクタリング
-- 小さなステップで進める
-- 仮実装（ベタ書き）から始める
-- 三角測量で一般化する
-- 明白な実装が分かる場合は直接実装してもOK
-- テストリストを常に更新する
-- 不安なところからテストを書く
