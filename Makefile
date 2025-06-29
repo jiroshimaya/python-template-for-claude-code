@@ -19,7 +19,7 @@ help:
 	@echo "  audit        - 依存関係の脆弱性チェック（pip-audit）"
 	@echo "  benchmark    - パフォーマンスベンチマーク実行"
 	@echo "  check        - format, lint, typecheck, testを順番に実行"
-	@echo "  check-all    - pre-commitで全ファイルをチェック"
+	@echo "  check-all    - pre-commitで全ファイルをチェック（PR前推奨）"
 	@echo "  pr           - PR作成 (TITLE=\"タイトル\" BODY=\"本文\" [LABEL=\"ラベル\"])"
 	@echo "  issue        - イシュー作成 (TITLE=\"タイトル\" BODY=\"本文\" [LABEL=\"ラベル\"])"
 	@echo "  clean        - キャッシュファイルの削除"

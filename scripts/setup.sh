@@ -181,18 +181,35 @@ setup_python() {
     print_success "Dependencies installed"
 }
 
-# Setup pre-commit
+# Setup pre-commit (optional)
 setup_precommit() {
-    print_step "Setting up pre-commit hooks..."
+    echo
+    echo "Pre-commit hooks can be installed to run quality checks automatically on every commit."
+    echo "However, this can slow down the commit process."
+    echo
+    echo "Recommended approach:"
+    echo "  - Skip auto-installation (use 'make' commands for manual checks)"
+    echo "  - GitHub Actions will enforce quality checks on PR"
+    echo
+    echo -n "Install pre-commit hooks? [y/N]: "
+    read -r install_precommit
 
-    uv run pre-commit install
-    uv run pre-commit install --hook-type commit-msg
+    if [[ "$install_precommit" =~ ^[Yy]$ ]]; then
+        print_step "Setting up pre-commit hooks..."
+        
+        uv run pre-commit install
+        uv run pre-commit install --hook-type commit-msg
 
-    # Run pre-commit on all files to ensure everything is set up
-    print_step "Running initial pre-commit checks..."
-    uv run pre-commit run --all-files || true
+        # Run pre-commit on all files to ensure everything is set up
+        print_step "Running initial pre-commit checks..."
+        uv run pre-commit run --all-files || true
 
-    print_success "Pre-commit hooks installed"
+        print_success "Pre-commit hooks installed"
+    else
+        print_step "Skipping pre-commit installation"
+        print_success "You can install later with: uv run pre-commit install"
+        echo "Use 'make format', 'make lint', 'make check' for manual quality checks"
+    fi
 }
 
 # Initialize git if needed
