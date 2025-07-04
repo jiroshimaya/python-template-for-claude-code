@@ -81,7 +81,6 @@ check_npm() {
         else
             print_error "Unsupported OS. Please install Node.js manually."
         fi
-        exit 1
     fi
 }
 
@@ -130,21 +129,25 @@ check_play_command() {
 }
 
 check_claude_code() {
-    print_step "Installing Claude Code..."
-    npm i -g @anthropic-ai/claude-code
-    print_success "Claude Code installed"
-    print_step "Checking Claude Code..."
-    claude --version
-    print_success "Claude Code checked"
+    if ! command -v claude &> /dev/null; then
+        print_step "Installing Claude Code..."
+        npm i -g @anthropic-ai/claude-code
+        print_success "Claude Code installed"
+        print_step "Checking Claude Code..."
+        claude --version
+        print_success "Claude Code checked"
+    fi
 }
 
 check_gemini_cli() {
-    print_step "Installing Gemini CLI..."
-    npm install -g @google/gemini-cli
-    print_success "Gemini CLI installed"
-    print_step "Checking Gemini CLI..."
-    gemini --version
-    print_success "Gemini CLI checked"
+    if ! command -v gemini &> /dev/null; then
+        print_step "Installing Gemini CLI..."
+        npm install -g @google/gemini-cli
+        print_success "Gemini CLI installed"
+        print_step "Checking Gemini CLI..."
+        gemini --version
+        print_success "Gemini CLI checked"
+    fi
 }
 
 # Get project name from user
