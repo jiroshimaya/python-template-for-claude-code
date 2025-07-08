@@ -237,11 +237,11 @@ project-root/
 ### モデルコード参照の推奨場面
 
 1. **新しいクラスや関数を実装する際**
-   - @template/src/project_name/core/example.py で適切な型ヒント、docstring、エラーハンドリングを確認
-   - @template/src/project_name/types.py で型定義のパターンを確認
+   - @template/src/template_package/core/example.py で適切な型ヒント、docstring、エラーハンドリングを確認
+   - @template/src/template_package/types.py で型定義のパターンを確認
 
 2. **ユーティリティ関数を作成する際**
-   - @template/src/project_name/utils/helpers.py で関数の構造、エラー処理、ロギングを確認
+   - @template/src/template_package/utils/helpers.py で関数の構造、エラー処理、ロギングを確認
 
 3. **テストを書く際**
    - @template/tests/unit/ で単体テストの書き方を確認
@@ -249,7 +249,7 @@ project-root/
    - @template/tests/conftest.py でフィクスチャの実装例を確認
 
 4. **ロギングを実装する際**
-   - @template/src/project_name/utils/logging_config.py で設定例を確認
+   - @template/src/template_package/utils/logging_config.py で設定例を確認
    - 各モジュールでのロガー使用例を確認
 
 新しいコードを書く際は、まず`template/`内の類似例を確認し、パターンを踏襲し、プロジェクト固有の要件に合わせて調整してください。
@@ -432,7 +432,7 @@ if not config_file.exists():
 2. **Red フェーズ**
    ```python
    # 1. 失敗するテストを書く
-   def test_新機能が期待通り動作する():
+   def test_新機能が期待通り動作する() -> None:
        result = new_function(input_data)
        assert result == expected_output  # まだ実装していないので失敗
    ```
@@ -440,14 +440,14 @@ if not config_file.exists():
 3. **Green フェーズ**
    ```python
    # 2. テストを通す最小限の実装
-   def new_function(input_data):
+   def new_function[T](input_data: T) -> T:
        return expected_output  # 仮実装（ベタ書き）
    ```
 
 4. **Refactor フェーズ**
    ```python
    # 3. リファクタリング（テストが通ることを確認しながら）
-   def new_function(input_data):
+   def new_function[T](input_data: T) -> T:
        # 実際のロジックに置き換える
        processed = process_data(input_data)
        return format_output(processed)
@@ -457,22 +457,22 @@ if not config_file.exists():
 
 ```python
 # Step 1: 最初のテスト（ベタ書きで通す）
-def test_add_正の数():
+def test_add_正の数() -> None:
     assert add(2, 3) == 5
 
-def add(a, b):
+def add(a: int, b: int) -> int:
     return 5  # 仮実装
 
 # Step 2: 2つ目のテスト（一般化を促す）
-def test_add_別の正の数():
+def test_add_別の正の数() -> None:
     assert add(1, 4) == 5
     assert add(10, 20) == 30  # これで仮実装では通らない
 
-def add(a, b):
+def add(a: int, b: int) -> int:
     return a + b  # 一般化
 
 # Step 3: エッジケースを追加
-def test_add_負の数():
+def test_add_負の数() -> None:
     assert add(-1, -2) == -3
     assert add(-5, 3) == -2
 ```
@@ -552,13 +552,13 @@ def test_add_負の数():
 
 ```python
 # 日本語で意図を明確に
-def test_正常系_有効なデータで処理成功():
+def test_正常系_有効なデータで処理成功() -> None:
     """chunk_listが正しくチャンク化できることを確認。"""
 
- def test_異常系_不正なサイズでValueError():
+def test_異常系_不正なサイズでValueError() -> None:
     """チャンクサイズが0以下の場合、ValueErrorが発生することを確認。"""
 
-def test_エッジケース_空リストで空結果():
+def test_エッジケース_空リストで空結果() -> None:
     """空のリストをチャンク化すると空の結果が返されることを確認。"""
 ```
 
@@ -583,7 +583,7 @@ def test_エッジケース_空リストで空結果():
 
 ```python
 # コード実装時は必ずINFOモード、デバッグ時はDEBUGモードで開発
-from project_name import setup_logging
+from template_package.utils.logging_config import setup_logging
 setup_logging(level="INFO")
 
 # または環境変数で設定
@@ -597,7 +597,9 @@ export LOG_LEVEL=INFO
 export TEST_LOG_LEVEL=INFO  # デフォルトはDEBUG
 
 # 個別のテストでログレベルを変更
-def test_with_custom_log_level(set_test_log_level):
+from collections.abc import Callable
+
+def test_with_custom_log_level(set_test_log_level: Callable[[str], None]) -> None:
     set_test_log_level("WARNING")
     # テスト実行
 ```
@@ -608,15 +610,15 @@ def test_with_custom_log_level(set_test_log_level):
 詳細は @template/src/template_package/utils/profiling.py を参照してください。
 
 ```python
-from project_name.utils.profiling import profile, timeit, Timer, profile_context
+from template_package.utils.profiling import profile, timeit, Timer, profile_context
 
 # 関数デコレーター
 @profile
-def heavy_computation():
+def heavy_computation() -> int:
     return sum(i**2 for i in range(10000))
 
 @timeit
-def quick_function():
+def quick_function() -> list[int]:
     return [i for i in range(1000)]
 
 # コンテキストマネージャー
