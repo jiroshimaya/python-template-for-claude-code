@@ -1,41 +1,31 @@
 ---
 title: CLAUDE.md
 created_at: 2025-06-14
-updated_at: 2025-06-26
+updated_at: 2025-07-08
 # このプロパティは、Claude Codeが関連するドキュメントの更新を検知するために必要です。消去しないでください。
 ---
 
-このファイルは、[Claude Code](https://www.anthropic.com/claude-code) がこのリポジトリのコードを扱う際のガイダンスを提供します。
+# Python開発テンプレート for Claude Code
 
-## プロジェクト概要
-
-このプロジェクトは、Claude Codeでの開発に最適化されたPythonプロジェクトテンプレートです。
-厳格な型チェック、自動化されたコード品質管理、CIに加えて、GitHub CLIを使用したGitHub操作をサポートします。
-また、Claude Codeとの協働をサポートするためのドキュメントも提供します。
+厳格な型チェック、自動化されたコード品質管理、CI/CDを備えたPython 3.12+プロジェクトテンプレート。
 
 ## 技術スタック
 
-- **言語**: Python 3.12+
-- **主要ツール**: uv (パッケージ管理), Ruff (リント・フォーマット), mypy (型チェック), pytest (テスト)
-- **パッケージ管理**: uv
-- **リンター/フォーマッター**: ruff
-- **型チェッカー**: mypy (strict mode + PEP 695対応)
-- **テストフレームワーク**: pytest + Hypothesis (プロパティベーステスト)
-- **パフォーマンス**: pytest-benchmark (自動ベンチマーク)
-- **自動化**: pre-commit, GitHub Actions
+**Python 3.12+** | uv | Ruff | mypy | pytest + Hypothesis | pre-commit | GitHub Actions
 
-## プロジェクト全体の構造(デフォルト。必要に応じて更新してください)
+## プロジェクト構造(デフォルト。必要に応じて更新してください)
+
 
 ```
 project-root/
-├── .github/                     # GitHub Actionsの設定ファイル
-│   ├── workflows/               # CI/CD + ベンチマークワークフロー
-│   │   ├── ci.yml               # メインCI（テスト・リント・型チェック）
-│   │   └── benchmark.yml        # パフォーマンスベンチマーク
-│   ├── dependabot.yml           # Dependabotの設定
-│   ├── ISSUE_TEMPLATE/          # Issueテンプレート
-│   └── PULL_REQUEST_TEMPLATE.md # Pull Requestテンプレート
-├── template/                    # **重要**: Claude Codeのベストプラクティス・モデルコード
+├── .github/
+│   ├── workflows/
+│   │   ├── ci.yml
+│   │   └── benchmark.yml
+│   ├── dependabot.yml
+│   ├── ISSUE_TEMPLATE/
+│   └── PULL_REQUEST_TEMPLATE.md
+├── template/
 │   ├── src/
 │   │   └── template_package/    # モデルパッケージの完全な実装例
 │   │       ├── __init__.py      # パッケージエクスポートの例
@@ -53,163 +43,62 @@ project-root/
 │       ├── integration/         # 結合テスト
 │       └── conftest.py          # pytestフィクスチャ
 ├── src/                         # 実際の開発用ディレクトリ
-│       └── project_name/    # モデルパッケージの完全な実装例
+│       └── project_name/
 │           └── （プロジェクト固有のパッケージを配置）
 ├── tests/                       # 実際のテスト用ディレクトリ
-│   ├── unit/                    # 単体テスト
-│   ├── property/                # プロパティベーステスト
-│   ├── integration/             # 統合テスト
-│   └── conftest.py              # pytest設定
-├── docs/                        # ドキュメント
-├── scripts/                     # ユーティリティスクリプト
-├── pyproject.toml               # uv/ruff/mypyの設定ファイル
-├── .gitignore                   # バージョン管理除外ファイル
-├── .pre-commit-config.yaml      # pre-commitの設定ファイル
-├── README.md                    # 人間向けのプロジェクトの説明
-└── CLAUDE.md                    # このファイル
+│   ├── unit/
+│   ├── property/
+│   ├── integration/
+│   └── conftest.py
+├── docs/
+├── scripts/
+├── pyproject.toml
+├── .gitignore
+├── .pre-commit-config.yaml
+├── README.md
+└── CLAUDE.md
 ```
 
 ## 実装時の必須要件
 
-**重要**: コードを書く際は、必ず以下のすべてを遵守してください：
+### 0. 開発環境
+- Pythonコマンド: 必ず `uv run` を前置
+- 依存関係追加: `uv add`
+- GitHub操作: `make pr`/`make issue` または `gh`
+- 品質チェック: `make check-all` を定期実行
 
-### 0. 開発環境を確認して活用する
+### 1-5. 実装フロー
+1. **コード品質**: make format → lint → typecheck → test
+2. **テスト**: 新機能には必ずテスト作成（t-wada流TDD）
+3. **ロギング**: 全コードにロギング実装必須
+4. **パフォーマンス**: 重い処理はプロファイリング
+5. **段階的実装**: 抽象クラス/Protocol定義 → テスト → 実装 → 最適化
 
-- 開発環境はuvで管理されています。すべてのPythonコマンドに `uv run` を前置し、新しい依存関係は `uv add` で追加してください。
-- GitHub CLIがインストールされています。GitHub操作は `make pr` や `make issue` 、または `gh` コマンドを使用してください。
-- pre-commitフックが設定されているほか、mypyやruff、pytestなどの厳格なガードレールが整備されています。こまめにmakeコマンドにあるチェックやフォーマットを実行し、コード品質を保証してください。
-- 「よく使うコマンド」セクションにあるmakeコマンドとしたコマンド集は、この開発環境での開発を支援するためのコマンドが揃っています。積極的に活用してください。
+### 6. エビデンスベース開発
 
-### 1. コード品質を保証する
+**禁止語**: best, optimal, faster, always, never, perfect
+**推奨語**: measured, documented, approximately, typically
 
-**コード品質保証のベストプラクティスは「コーディング規約」セクションを参照してください。**
+**証拠要件**:
+- パフォーマンス: "measured at Xms", "reduces by X%"
+- 品質: "coverage X%", "complexity Y"
+- セキュリティ: "scan detected X issues"
+- 信頼性: "uptime X%", "error rate Y%"
 
-コーディング後は必ず適切なmakeコマンドを実行してください。例えば、コーディング品質を保証するためのmakeコマンドは以下の通りです。
-
-- `make format`: コードフォーマット
-- `make lint`: リントチェック
-- `make typecheck`: 型チェック（strict mode）
-- `make test`: 全テスト実行
-- まとめて実行: `make check-all`（format → lint → typecheck → test）
-
-### 2. テストを実装する
-
-**テスト実装のベストプラクティスは「テスト戦略」セクションを参照してください。**
-
-新機能には必ず対応するテストを作成してください。
-
-### 3. 適切なロギングを行う
-
-**ロギングのベストプラクティスは「ロギング戦略」セクションを参照してください。**
-
-このプロジェクトでは、すべてのコードに実行時のロギングを実装することを必須とします。これにより、開発・デバッグ時の問題追跡が容易になります。
-
-### 4. パフォーマンスを測定する
-
-**パフォーマンス測定のベストプラクティスは「パフォーマンス測定とベンチマーク」セクションを参照してください。**
-
-重い処理を含む関数には適宜プロファイリングを実装し、パフォーマンスを測定することで実装のボトルネックが発見しやすいようにしてください。
-
-### 5. 段階的実装アプローチを行う
-
-- **インターフェース設計**: まずProtocolやABCでインターフェースを定義
-- **テストファースト**: 実装前にテストを作成
-- **段階的実装**: 最小限の実装→リファクタリング→最適化の順序
-
-### 6. エビデンスベースで開発する
-
-コード品質や性能に関する主張は、必ず測定可能な証拠に基づいて行ってください。
-
-**禁止される曖昧な表現**:
-- `best`, `optimal`, `faster`, `secure`, `better`, `improved`, `enhanced`, `always`, `never`, `guaranteed`, `perfect`, `flawless`
-
-**推奨される具体的な表現**:
-- `may`, `could`, `potentially`, `typically`, `often`, `sometimes`, `measured`, `documented`, `approximately`, `estimated`, `observed`, `reported`
-
-**必須の証拠要件**:
-
-1. **パフォーマンス**:
-   - `benchmarks show`
-   - `profiling indicates`
-   - `measured at Xms`
-   - `reduces time by X%`
-
-2. **品質**:
-   - `testing confirms`
-   - `coverage increased to X%`
-   - `complexity reduced from X to Y`
-   - `metrics show`
-
-3. **セキュリティ**:
-   - `audit reveals`
-   - `scan detected`
-   - `OWASP compliant`
-   - `CVE database shows`
-
-4. **信頼性**:
-   - `uptime of X%`
-   - `error rate of X%`
-   - `MTBF of X hours`
-   - `recovery time of X seconds`
-
-**エビデンスベースの主張テンプレート**:
-
-```python
-# パフォーマンスの主張
-"Performance testing shows response time of 45ms, which is 25% lower than the baseline of 60ms"
-
-# 品質の主張
-"Code analysis reveals cyclomatic complexity of 5, indicating maintainable code structure"
-
-# セキュリティの主張
-"Security scan using bandit detected 0 issues, with no critical findings"
-```
-
-### 7. 開発効率化のためのテクニックを遵守する
-
-#### コミュニケーション記法
-
-開発の効率化のため、以下の記号体系を活用してください。
-
-```yaml
-記号体系:
-  →: "leads to/flows to"  # 処理の流れ
-  |: "separator/or"       # 区切り・選択
-  &: "combine/and"        # 結合・並列
-  :: "define/is"          # 定義
-  »: "sequence/then"      # シーケンス
-  @: "location/reference" # 場所・参照
-```
-
-例: `analyze→fix→test` = 分析してから修正し、その後テストする
+### 7. 効率化テクニック
 
 #### 実行パターン
-
-1. **並列処理** (独立したタスクは同時実行):
-   - 適用条件: ファイル間の依存関係なし、リソース競合なし、順序依存なし
+- **並列処理**: 独立タスク同時実行
    - 例: 複数ファイルの読み込み、独立したテストの実行、並列ビルド
-
-2. **バッチ処理** (類似操作をまとめて実行):
-   - 適用条件: 同じ種類の操作、共通のリソース使用、効率化可能
+- **バッチ処理**: 類似操作をまとめて
    - 例: 複数ファイルのフォーマット、一括インポート修正、バッチテスト実行
-
-3. **逐次処理** (順序を守って実行):
-   - 適用条件: 依存関係あり、状態変更を伴う、トランザクション処理
-   - 例: データベースマイグレーション、段階的リファクタリング、依存パッケージインストール
+- **逐次処理**: 依存関係順守
+   - 例: - 例: データベースマイグレーション、段階的リファクタリング、依存パッケージインストール
 
 #### エラーリカバリー
-
-1. **自動リトライ**:
-   - 対象: 一時的なネットワークエラー、リソース競合、タイムアウト
-   - 戦略: 指数バックオフ、最大3回まで、代替手段の試行
-
-2. **フォールバック**:
-   - パターン: primary（高速だが失敗する可能性）→ fallback（遅いが確実）
-   - 例: 並列処理 → 逐次処理、キャッシュ → 再計算、最適化 → 基本実装
-
-3. **状態復元**:
-   - チェックポイント: 操作前の状態を保存、部分的な成功を記録、ロールバック可能
-   - リカバリー: 最後の正常状態から再開、失敗した操作のみ再実行、代替アプローチの提案
+- **リトライ**: 最大3回、指数バックオフ
+- **フォールバック**: 高速処理 → 確実な処理
+- **状態復元**: チェックポイントからロールバック、最後の正常状態から再開、失敗した操作のみ再実行、代替アプローチの提案
 
 #### 建設的フィードバックの提供
 
@@ -224,109 +113,58 @@ project-root/
 - エビデンスベースの代替案 > 単なる批判
 - 例: "より効率的な方法: X" | "セキュリティリスク: SQLインジェクション"
 
-**条件分岐と並列ワークフロー**:
-- 成功時: 次のステップへ自動進行
-- 失敗時: エラーハンドリングとトラブルシューティング
-- 警告時: 確認後続行またはスキップ
-- 並列実行: セキュリティスキャン & 品質チェック & パフォーマンステスト
+## template/ディレクトリの活用
 
-## `template/`ディレクトリにあるモデルケースの参照
-
-`template/` ディレクトリには、Python開発のベストプラクティスを示すモデルコードが含まれています。実装時の参考として積極的に活用してください。
-
-### モデルコード参照の推奨場面
-
-1. **新しいクラスや関数を実装する際**
-   - @template/src/template_package/core/example.py で適切な型ヒント、docstring、エラーハンドリングを確認
-   - @template/src/template_package/types.py で型定義のパターンを確認
-
-2. **ユーティリティ関数を作成する際**
-   - @template/src/template_package/utils/helpers.py で関数の構造、エラー処理、ロギングを確認
-
-3. **テストを書く際**
-   - @template/tests/unit/ で単体テストの書き方を確認
-   - @template/tests/property/ でプロパティベーステストの例を確認
-   - @template/tests/conftest.py でフィクスチャの実装例を確認
-
-4. **ロギングを実装する際**
-   - @template/src/template_package/utils/logging_config.py で設定例を確認
-   - 各モジュールでのロガー使用例を確認
-
-新しいコードを書く際は、まず`template/`内の類似例を確認し、パターンを踏襲し、プロジェクト固有の要件に合わせて調整してください。
-`template/`は削除せず、常に参照可能な状態を維持します。
+実装前に必ず参照:
+- **クラス/関数**
+   - `template/src/template_package/core/example.py` で適切な型ヒント、docstring、エラーハンドリングを確認
+   - `template/src/template_package/types.py` で型定義のパターンを確認
+- **ユーティリティ**:
+   - `template/src/template_package/utils/helpers.py` で関数の構造、エラー処理、ロギングを確認
+- **テスト**:
+   - `template/tests/unit/`: 単体テスト
+   - `template/tests/property/`: プロパティベーステスト
+   - `template/tests/integration/`: 結合テスト
+   - `template/tests/conftest.py`: フィクスチャの実装例
+- **ロギング**:
+   - `template/src/template_package/utils/logging_config.py`
+- 新しいコードを書く際は、まず`template/`内の類似例を確認しパターンを踏襲、プロジェクト固有の要件に合わせて調整
+- `template/`は変更/削除せず、常に参照可能な状態を維持
 
 ## よく使うコマンド
 
-### 基本的な開発コマンド（Makefile使用）
-
 ```bash
-# 開発環境のセットアップ
-make setup                  # 依存関係インストール + pre-commitフック設定など
+# 基本
+make help               # コマンド一覧
+make check-all          # 全チェック実行
+make clean              # キャッシュ削除
 
-# テスト実行
-make test                   # 全テスト実行（単体・プロパティベース・統合）
-make test-cov               # カバレッジ付きテスト実行
-make test-unit              # 単体テストのみ実行
-make test-property          # プロパティベーステストのみ実行
-
-# コード品質チェック
-make format                 # コードフォーマット
-make lint                   # リントチェック（自動修正付き）
-make typecheck              # 型チェック（strict mode）
-make security               # セキュリティチェック（bandit）
-make audit                  # 依存関係の脆弱性チェック（pip-audit）
-
-# パフォーマンス測定
-make benchmark              # ローカルベンチマーク実行
-
-# 統合チェック
-make check                  # format, lint, typecheck, testを順番に実行
-make check-all              # pre-commitで全ファイルをチェック
+# 品質チェック
+make format             # フォーマット
+make lint               # リント
+make typecheck          # 型チェック
+make test               # テスト実行
+make test-cov           # カバレッジ付きテスト
 
 # GitHub操作
-make pr TITLE="タイトル" BODY="本文" [LABEL="ラベル"]      # PR作成（mainブランチからは不可、ラベル自動作成対応）
-make pr-list                                                  # 開いているPRの一覧表示
-make issue TITLE="タイトル" BODY="本文" [LABEL="ラベル"]   # イシュー作成（ラベル自動作成対応）
-make issue-list                                               # 開いているイシューの一覧表示
-make label-list                                               # 利用可能なラベルの一覧表示
+make pr TITLE="x" BODY="y" [LABEL="z"]     # PR作成
+make issue TITLE="x" BODY="y"              # Issue作成
 
-# 注: BODYにはファイルパスも指定可能（例: BODY="/tmp/pr_body.md"）
-# 注: 存在しないラベルは自動的に作成されます
-
-# その他
-make clean                  # キャッシュファイルの削除
-make help                   # 利用可能なコマンド一覧
-
-# 依存関係の追加
-make sync                         # 全依存関係を同期
-uv add package_name                # ランタイム依存関係
-uv add --dev dev_package_name      # 開発依存関係
-uv lock --upgrade                  # 依存関係を更新
+# 依存関係
+uv add package_name               # 通常パッケージ
+uv add --dev package_name         # 開発用パッケージ
 ```
 
-## GitHubに関する規則
+## Git規則
 
-### ブランチ名の命名規則
-
-- 機能追加: `feature/...`
-- バグ修正: `fix/...`
-- リファクタリング: `refactor/...`
-- ドキュメント更新: `docs/...`
-- テスト: `test/...`
-
-### ラベル名の命名規則
-
-- 機能追加: `enhancement`
-- バグ修正: `bug`
-- リファクタリング: `refactor`
-- ドキュメント更新: `documentation`
-- テスト: `test`
+**ブランチ**: feature/ | fix/ | refactor/ | docs/ | test/
+**ラベル**: enhancement | bug | refactor | documentation | test
 
 ## コーディング規約
 
 ### ディレクトリ構成
 
-パッケージとテストは `template/` 内の構造を踏襲します。コアロジックは必ず `src/project_name` 内に配置してください。
+パッケージとテストは `template/` 内の構造を踏襲、コアロジックは必ず `src/project_name` 内に配置
 
 ```
 src/
@@ -345,365 +183,113 @@ src/
 ```
 
 ### Python コーディングスタイル
+- 型ヒント: Python 3.12+スタイル必須（mypy strict + PEP 695）
+- Docstring: NumPy形式
+- 命名: クラス(PascalCase)、関数(snake_case)、定数(UPPER_SNAKE)、プライベート(_prefix)
+- ベストプラクティス: @template/src/template_package/types.py を参照
 
-- **型ヒント**: Python 3.12+ の型ヒントを必ず使用（mypy strict mode + PEP 695準拠）
-- **Docstring**: NumPy形式のDocstringを使用
-- **命名規則**:
-  - クラス: PascalCase
-  - 関数/変数: snake_case
-  - 定数: UPPER_SNAKE_CASE
-  - プライベート: 先頭に `_`
-- **インポート順序**: 標準ライブラリ → サードパーティ → ローカル（ruffが自動整理）
+### エラーメッセージ
 
-### 型ヒントのベストプラクティス
-
-@template/src/template_package/types.py を参照してください。
-
-### エラーメッセージの原則
-
-#### 1. 具体的で実用的
-```python
-# Bad
-raise ValueError("Invalid input")
-
-# Good
-raise ValueError(
-    f"Expected positive integer for 'count', got {count}. "
-    f"Please provide a value greater than 0."
-)
-```
-
-#### 2. コンテキストを提供
-```python
-try:
-    result = process_data(data)
-except ProcessingError as e:
-    raise ProcessingError(
-        f"Failed to process data from {source_file}: {e}"
-    ) from e
-```
-
-#### 3. 解決策を提示
-```python
-if not config_file.exists():
-    raise FileNotFoundError(
-        f"Configuration file not found at {config_file}. "
-        f"Create one by running: python -m {__package__}.init_config"
-    )
-```
+1. **具体的**: "Invalid input" → "Expected positive integer, got {count}"
+2. **コンテキスト付き**: "Failed to process {source_file}: {e}"
+3. **解決策を提示**: "Not found. Create by: python -m {__package__}.init"
 
 ### アンカーコメント
-
-疑問点や改善点がある場合は、アンカーコメントを活用してください。
-
 ```python
-# AIDEV-NOTE: このクラスは外部APIとの統合専用
-# AIDEV-TODO: パフォーマンス最適化が必要（レスポンス時間>500ms）
-# AIDEV-QUESTION: この実装でメモリリークの可能性は？
+# AIDEV-NOTE: 説明
+# AIDEV-TODO: 課題
+# AIDEV-QUESTION: 疑問
 ```
 
-## テスト戦略
+## テスト戦略（TDD）
 
-**t-wada流のテスト駆動開発（TDD）を徹底してください。**
+t-wada流のテスト駆動開発（TDD）を徹底
 
-### TDD （t-wada流）
+### サイクル
+🔴 Red → 🟢 Green → 🔵 Refactor
 
-#### 基本方針
+### 手順
+1. TODOリスト作成
+2. 失敗するテストを書く
+3. 最小限の実装（仮実装OK）
+4. リファクタリング
 
-- 🔴 Red: 失敗するテストを書く
-- 🟢 Green: テストを通す最小限の実装
-- 🔵 Refactor: リファクタリング
+### 原則
 - 小さなステップで進める
-- 仮実装（ベタ書き）から始める
-- 三角測量で一般化する
-- 明白な実装が分かる場合は直接実装してもOK
-- テストリストを常に更新する
-- 不安なところからテストを書く
-
-#### TDDの実施手順
-
-1. **TODOリストの作成**
-   ```
-   [ ] 実装したい機能をリストアップ
-   [ ] 不安な部分、エッジケースも追加
-   [ ] 最小単位に分解
-   ```
-
-2. **Red フェーズ**
-   ```python
-   # 1. 失敗するテストを書く
-   def test_新機能が期待通り動作する() -> None:
-       result = new_function(input_data)
-       assert result == expected_output  # まだ実装していないので失敗
-   ```
-
-3. **Green フェーズ**
-   ```python
-   # 2. テストを通す最小限の実装
-   def new_function[T](input_data: T) -> T:
-       return expected_output  # 仮実装（ベタ書き）
-   ```
-
-4. **Refactor フェーズ**
-   ```python
-   # 3. リファクタリング（テストが通ることを確認しながら）
-   def new_function[T](input_data: T) -> T:
-       # 実際のロジックに置き換える
-       processed = process_data(input_data)
-       return format_output(processed)
-   ```
+- 三角測量で一般化
+- 不安な部分から着手
+- テストリストを常に更新
 
 #### 三角測量の例
-
 ```python
-# Step 1: 最初のテスト（ベタ書きで通す）
-def test_add_正の数() -> None:
-    assert add(2, 3) == 5
+# 1. 仮実装: return 5
+assert add(2, 3) == 5
 
-def add(a: int, b: int) -> int:
-    return 5  # 仮実装
+# 2. 一般化: return a + b
+assert add(10, 20) == 30
 
-# Step 2: 2つ目のテスト（一般化を促す）
-def test_add_別の正の数() -> None:
-    assert add(1, 4) == 5
-    assert add(10, 20) == 30  # これで仮実装では通らない
-
-def add(a: int, b: int) -> int:
-    return a + b  # 一般化
-
-# Step 3: エッジケースを追加
-def test_add_負の数() -> None:
-    assert add(-1, -2) == -3
-    assert add(-5, 3) == -2
+# 3. エッジケース確認
+assert add(-1, -2) == -3
 ```
 
-#### TDD実践時の注意点
+#### 注意点
+- 1テストに複数の振る舞いを含めない
+- Red→Greenでコミット
+- 日本語テスト名推奨
+- リファクタリング: 重複/可読性/SOLID違反時
 
-1. **テストは1つずつ追加**
-   - 一度に複数のテストを書かない
-   - 各テストが失敗することを確認してから実装
+### テスト種別
+1. **単体テスト**: 基本動作（`template/tests/unit/`）
+2. **プロパティベーステスト**: Hypothesis自動生成（`template/tests/property/`）
+3. **統合テスト**: コンポーネント連携（`template/tests/integration/`）
 
-2. **コミットのタイミング**
-   - Red → Green: テストが通ったらコミット
-   - Refactor: リファクタリング完了でコミット
-   - 小さく頻繁にコミットする
+### テスト命名
+`test_[正常系|異常系|エッジケース]_条件で結果()`
 
-3. **テストの粒度**
-   - 最小単位でテストを書く
-   - 1つのテストで1つの振る舞いをテスト
-   - テスト名は日本語で意図を明確に
+## ロギング
 
-4. **リファクタリングの判断**
-   - 重複コードがある
-   - 可読性が低い
-   - 設計原則（SOLID等）に違反
-   - パフォーマンスの問題（測定してから）
+### 必須要件
+1. モジュール冒頭でロガー定義
+2. 関数開始/終了時にログ出力
+3. エラー時: `exc_info=True`
+4. レベル: DEBUG(詳細)/INFO(重要)/WARNING(注意)/ERROR(エラー)
 
-5. **テストファーストの実践**
-   - 必ず失敗するテストから書く
-   - `make test`で失敗を確認
-   - 最小限の実装でテストを通す
+ベストプラクティス:
+- @template/src/template_package/utils/logging_config.py
+- @template/src/template_package/core/example.py
 
-6. **段階的な実装**
-   - TODOリストを1つずつ消化
-   - 各ステップでテストが通ることを確認
-   - リファクタリング時もテストを実行
-
-### TDDサイクルの記録
-
-実装時は以下のフォーマットでTDDサイクルを記録してください：
-
-```markdown
-## 機能: ユーザー認証システム
-
-### TODOリスト
-- [x] ユーザー名とパスワードで認証できる
-- [x] 不正な認証情報でエラーを返す
-- [ ] パスワードのハッシュ化
-- [ ] セッション管理
-- [ ] ログアウト機能
-
-### サイクル1: 基本的な認証
-🔴 Red: test_正常系_有効な認証情報でTrue()
-🟢 Green: return True（仮実装）
-🔵 Refactor: 実際の認証ロジックを実装
-
-### サイクル2: エラーハンドリング
-🔴 Red: test_異常系_無効な認証情報でFalse()
-🟢 Green: if文で条件分岐
-🔵 Refactor: エラーメッセージの改善
-```
-
-詳細は `template/tests/` にある実装を適宜参照してください。
-
-### テストの種類
-
-1. **単体テスト** ( @template/tests/unit/test_example.py などを参照 )
-   - 関数・クラスの基本動作をテスト
-   - 正常系・異常系・エッジケースもカバーする
-
-2. **プロパティベーステスト** ( @template/tests/property/test_helpers_property.py などを参照 )
-   - Hypothesisで様々な入力パターンを自動生成してテスト
-
-3. **統合テスト** ( @template/tests/integration/test_example.py などを参照 )
-   - コンポーネント間の連携
-
-### テスト命名規約
-
+### 設定
 ```python
-# 日本語で意図を明確に
-def test_正常系_有効なデータで処理成功() -> None:
-    """chunk_listが正しくチャンク化できることを確認。"""
-
-def test_異常系_不正なサイズでValueError() -> None:
-    """チャンクサイズが0以下の場合、ValueErrorが発生することを確認。"""
-
-def test_エッジケース_空リストで空結果() -> None:
-    """空のリストをチャンク化すると空の結果が返されることを確認。"""
-```
-
-## ロギング戦略
-
-### ロギング実装の必須要件
-
-**TL;DR**
-
-1. **各モジュールの冒頭で必ずロガーを実装**
-2. **関数・メソッドの開始と終了時にログを出力**
-3. **エラー処理時にログを出力し、exc_info=Trueを付けることでエラーの原因を追跡できるようにする**
-4. **ログレベルの使い分け**
-    - **DEBUG**: 詳細な実行フロー、引数、戻り値
-    - **INFO**: 重要な処理の完了、状態変更
-    - **WARNING**: 異常ではないが注意が必要な状況
-    - **ERROR**: エラー発生時（必ずexc_info=Trueを付ける）
-
-詳細は @template/src/template_package/utils/logging_config.py や @template/src/template_package/core/example.py にある実装を適宜参照してください。
-
-### 開発時のロギング設定
-
-```python
-# コード実装時は必ずINFOモード、デバッグ時はDEBUGモードで開発
-from template_package.utils.logging_config import setup_logging
 setup_logging(level="INFO")
-
-# または環境変数で設定
-export LOG_LEVEL=INFO
+# または export LOG_LEVEL=INFO
 ```
 
-### テスト時の設定
+## パフォーマンス測定
 
 ```python
-# テスト実行時のログレベル制御
-export TEST_LOG_LEVEL=INFO  # デフォルトはDEBUG
+from template_package.utils.profiling import profile, timeit, Timer
 
-# 個別のテストでログレベルを変更
-from collections.abc import Callable
+@profile  # 詳細プロファイル
+@timeit   # 実行時間計測
+def func(): ...
 
-def test_with_custom_log_level(set_test_log_level: Callable[[str], None]) -> None:
-    set_test_log_level("WARNING")
-    # テスト実行
+with Timer("operation"):  # ブロック計測
+    ...
 ```
 
-## パフォーマンス測定とベンチマーク
+ベストプラクティス:
+- @template/src/template_package/utils/profiling.py
 
-以下に適切なパフォーマンス測定の例を示します。
-詳細は @template/src/template_package/utils/profiling.py を参照してください。
+## 更新トリガー
 
-```python
-from template_package.utils.profiling import profile, timeit, Timer, profile_context
+- 仕様/依存関係/構造/規約の変更時
+- 同一質問2回以上 → FAQ追加
+- エラーパターン2回以上 → トラブルシューティング追加
 
-# 関数デコレーター
-@profile
-def heavy_computation() -> int:
-    return sum(i**2 for i in range(10000))
+## トラブルシューティング/FAQ
 
-@timeit
-def quick_function() -> list[int]:
-    return [i for i in range(1000)]
+適宜更新
 
-# コンテキストマネージャー
-with Timer("Custom operation") as timer:
-    result = process_large_dataset()
-print(f"Took {timer.elapsed:.4f} seconds")
+## カスタムガイド
 
-# 詳細プロファイリング
-with profile_context(sort_by="cumulative", limit=10) as prof:
-    complex_operation()
-```
-
-## CLAUDE.md自動更新トリガー
-
-**重要**: 以下の状況でCLAUDE.mdの更新を検討してください：
-
-### 変更ベースのトリガー
-- 仕様の追加・変更があった場合
-- 新しい依存関係の追加時
-- プロジェクト構造の変更
-- コーディング規約の更新
-
-### 頻度ベースのトリガー
-
-- **同じ質問が2回以上発生** → 即座にFAQとして追加
-- **新しいエラーパターンを2回以上確認** → トラブルシューティングに追加
-
-## トラブルシューティング
-
-### pre-commitが失敗する場合
-
-```bash
-# キャッシュをクリア
-uv run pre-commit clean
-uv run pre-commit gc
-
-# 再インストール
-uv run pre-commit uninstall
-uv run pre-commit install
-```
-
-### テスト失敗の調査
-
-```bash
-# 失敗したテストの詳細確認
-make test-unit PYTEST_ARGS="-vvs -k test_name"
-
-# デバッグモードで実行
-export LOG_LEVEL=DEBUG
-make test
-
-# カバレッジ確認
-make test-cov
-```
-
-### ...随時追記してください...
-
-## FAQ
-
-### Q: `make pr` が "Cannot create PR from main/master branch" エラーになる
-
-新しいブランチを作成してから実行してください：
-```bash
-git checkout -b feature/your-feature-name
-# 変更をコミット
-git add .
-git commit -m "Your commit message"
-# PRを作成
-make pr TITLE="PR Title" BODY="PR Description"
-```
-
-### Q: `make issue` が認証エラーになる
-
-GitHub CLIの認証が必要です：
-```bash
-gh auth login
-# ブラウザまたはトークンで認証を完了させてください
-```
-
-### ...随時追記してください...
-
-## 詳細ガイドの参照
-
-### カスタムガイドの追加
-
-プロジェクト固有の要件に応じて、追加のカスタムガイドを`docs/` ディレクトリに作成できます。
-例: フロントエンドプロジェクトのガイド(`docs/frontend-project-guide.md`), チーム固有のルール(`docs/team-specific-guide.md`)など
-カスタムガイドを追加した場合は、必ずこのCLAUDE.mdにその概要を追加してください。
+`docs/`に追加可能。追加時はCLAUDE.mdに概要記載必須。
