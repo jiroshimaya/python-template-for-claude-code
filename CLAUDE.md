@@ -50,7 +50,7 @@ project-root/
 │   ├── property/
 │   ├── integration/
 │   └── conftest.py
-├── docs/
+├── docs/                        # ドキュメント
 ├── scripts/
 ├── pyproject.toml
 ├── .gitignore
@@ -62,17 +62,18 @@ project-root/
 ## 実装時の必須要件
 
 ### 0. 開発環境
-- Pythonコマンド: 必ず `uv run` を前置
-- 依存関係追加: `uv add`
-- GitHub操作: `make pr`/`make issue` または `gh`
-- 品質チェック: `make check-all` を定期実行
+- **パッケージ管理**: uvで環境を統一管理。Pythonコマンドは必ず `uv run` を前置
+- **依存関係追加**: `uv add` (通常) / `uv add --dev` (開発用)
+- **GitHub操作**: `make pr`/`make issue` または `gh`コマンド
+- **品質保証**: pre-commitフック設定済み。`make check-all` で包括的チェック
+- **開発支援**: Makefileに開発効率化コマンド集約。`make help` で一覧表示
 
 ### 1-5. 実装フロー
-1. **コード品質**: make format → lint → typecheck → test
-2. **テスト**: 新機能には必ずテスト作成（t-wada流TDD）
-3. **ロギング**: 全コードにロギング実装必須
-4. **パフォーマンス**: 重い処理はプロファイリング
-5. **段階的実装**: 抽象クラス/Protocol定義 → テスト → 実装 → 最適化
+1. **品質**: format→lint→typecheck→test
+2. **テスト**: 新機能::TDD必須
+3. **ロギング**: 全コード::ログ必須
+4. **性能**: 重い処理→プロファイル
+5. **段階的**: Protocol»テスト»実装»最適化
 
 ### 6. エビデンスベース開発
 
@@ -80,25 +81,32 @@ project-root/
 **推奨語**: measured, documented, approximately, typically
 
 **証拠要件**:
-- パフォーマンス: "measured at Xms", "reduces by X%"
-- 品質: "coverage X%", "complexity Y"
-- セキュリティ: "scan detected X issues"
-- 信頼性: "uptime X%", "error rate Y%"
+- **性能**: "measured Xms" | "reduces X%"
+- **品質**: "coverage X%" | "complexity Y"
+- **セキュリティ**: "scan detected X"
+- **信頼性**: "uptime X%" | "error rate Y%"
 
 ### 7. 効率化テクニック
 
+#### コミュニケーション記法
+```yaml
+→: "処理フロー"      # analyze→fix→test
+|: "選択/区切り"     # option1|option2
+&: "並列/結合"       # task1 & task2
+::: "定義"           # variable :: value
+»: "シーケンス"      # step1 » step2
+@: "参照/場所"       # @file:line
+```
+
 #### 実行パターン
-- **並列処理**: 独立タスク同時実行
-   - 例: 複数ファイルの読み込み、独立したテストの実行、並列ビルド
-- **バッチ処理**: 類似操作をまとめて
-   - 例: 複数ファイルのフォーマット、一括インポート修正、バッチテスト実行
-- **逐次処理**: 依存関係順守
-   - 例: - 例: データベースマイグレーション、段階的リファクタリング、依存パッケージインストール
+- **並列**: 依存なし&競合なし&順序不問 → 複数ファイル読込|独立テスト|並列ビルド
+- **バッチ**: 同種操作&共通リソース → 一括フォーマット|インポート修正|バッチテスト
+- **逐次**: 依存あり|状態変更|トランザクション → DBマイグレ|段階的リファクタ|依存インストール
 
 #### エラーリカバリー
-- **リトライ**: 最大3回、指数バックオフ
-- **フォールバック**: 高速処理 → 確実な処理
-- **状態復元**: チェックポイントからロールバック、最後の正常状態から再開、失敗した操作のみ再実行、代替アプローチの提案
+- **リトライ**: max3回 & 指数バックオフ
+- **フォールバック**: 高速→確実
+- **状態復元**: チェックポイント»ロールバック|正常状態»再開|失敗のみ»再実行
 
 #### 建設的フィードバックの提供
 
@@ -116,24 +124,21 @@ project-root/
 ## template/ディレクトリの活用
 
 実装前に必ず参照:
-- **クラス/関数**
-   - `template/src/template_package/core/example.py` で適切な型ヒント、docstring、エラーハンドリングを確認
-   - `template/src/template_package/types.py` で型定義のパターンを確認
-- **ユーティリティ**:
-   - `template/src/template_package/utils/helpers.py` で関数の構造、エラー処理、ロギングを確認
-- **テスト**:
-   - `template/tests/unit/`: 単体テスト
-   - `template/tests/property/`: プロパティベーステスト
-   - `template/tests/integration/`: 結合テスト
-   - `template/tests/conftest.py`: フィクスチャの実装例
-- **ロギング**:
-   - `template/src/template_package/utils/logging_config.py`
-- 新しいコードを書く際は、まず`template/`内の類似例を確認しパターンを踏襲、プロジェクト固有の要件に合わせて調整
-- `template/`は変更/削除せず、常に参照可能な状態を維持
+- **クラス/関数**: @template/src/template_package/core/example.py (型ヒント|docstring|エラー処理)
+- **型定義**: @template/src/template_package/types.py
+- **ユーティリティ**: @template/src/template_package/utils/helpers.py
+- **テスト**: @template/tests/{unit|property|integration}/
+- **フィクスチャ**: @template/tests/conftest.py
+- **ロギング**: @template/src/template_package/utils/logging_config.py
+実装時: template/内の類似例確認»パターン踏襲»プロジェクト調整
+注: template/は変更&削除禁止
 
 ## よく使うコマンド
 
 ```bash
+# 初期セットアップ
+make setup              # 依存関係インストール + pre-commitフック設定
+
 # 基本
 make help               # コマンド一覧
 make check-all          # 全チェック実行
@@ -149,10 +154,14 @@ make test-cov           # カバレッジ付きテスト
 # GitHub操作
 make pr TITLE="x" BODY="y" [LABEL="z"]     # PR作成
 make issue TITLE="x" BODY="y"              # Issue作成
+# 注: BODYにはファイルパス指定可能 (例: BODY="/tmp/pr_body.md")
+# 注: 存在しないラベルは自動作成される
 
 # 依存関係
 uv add package_name               # 通常パッケージ
 uv add --dev package_name         # 開発用パッケージ
+make sync                         # 全依存関係を同期
+uv lock --upgrade                 # 依存関係を更新
 ```
 
 ## Git規則
@@ -186,7 +195,7 @@ src/
 - 型ヒント: Python 3.12+スタイル必須（mypy strict + PEP 695）
 - Docstring: NumPy形式
 - 命名: クラス(PascalCase)、関数(snake_case)、定数(UPPER_SNAKE)、プライベート(_prefix)
-- ベストプラクティス: @template/src/template_package/types.py を参照
+- ベストプラクティス: @template/src/template_package/types.py
 
 ### エラーメッセージ
 
@@ -206,13 +215,13 @@ src/
 t-wada流のテスト駆動開発（TDD）を徹底
 
 ### サイクル
-🔴 Red → 🟢 Green → 🔵 Refactor
+🔴 Red » 🟢 Green » 🔵 Refactor
 
 ### 手順
-1. TODOリスト作成
-2. 失敗するテストを書く
-3. 最小限の実装（仮実装OK）
-4. リファクタリング
+1. TODO作成
+2. 失敗テスト
+3. 最小実装（仮実装OK）
+4. リファクタ
 
 ### 原則
 - 小さなステップで進める
@@ -233,15 +242,15 @@ assert add(-1, -2) == -3
 ```
 
 #### 注意点
-- 1テストに複数の振る舞いを含めない
-- Red→Greenでコミット
+- 1test::1behavior
+- Red»Greenでコミット
 - 日本語テスト名推奨
-- リファクタリング: 重複/可読性/SOLID違反時
+- リファクタ: 重複|可読性|SOLID違反時
 
 ### テスト種別
-1. **単体テスト**: 基本動作（`template/tests/unit/`）
-2. **プロパティベーステスト**: Hypothesis自動生成（`template/tests/property/`）
-3. **統合テスト**: コンポーネント連携（`template/tests/integration/`）
+1. **単体**: 基本動作 `template/tests/unit/`
+2. **プロパティ**: Hypothesis自動生成 `template/tests/property/`
+3. **統合**: 連携テスト `template/tests/integration/`
 
 ### テスト命名
 `test_[正常系|異常系|エッジケース]_条件で結果()`
@@ -249,19 +258,30 @@ assert add(-1, -2) == -3
 ## ロギング
 
 ### 必須要件
-1. モジュール冒頭でロガー定義
-2. 関数開始/終了時にログ出力
-3. エラー時: `exc_info=True`
-4. レベル: DEBUG(詳細)/INFO(重要)/WARNING(注意)/ERROR(エラー)
+1. モジュール冒頭::ロガー定義
+2. 関数開始&終了::ログ出力
+3. エラー時::exc_info=True
+4. レベル: DEBUG|INFO|WARNING|ERROR
 
-ベストプラクティス:
-- @template/src/template_package/utils/logging_config.py
-- @template/src/template_package/core/example.py
+ベストプラクティス: @template/src/template_package/utils/logging_config.py & @template/src/template_package/core/example.py
 
 ### 設定
 ```python
 setup_logging(level="INFO")
 # または export LOG_LEVEL=INFO
+```
+
+### テスト時の設定
+```bash
+# 環境変数でテスト時のログレベル制御
+export TEST_LOG_LEVEL=INFO  # デフォルトはDEBUG
+```
+
+```python
+# 個別テストでログレベル変更
+def test_カスタムログレベル(set_test_log_level):
+    set_test_log_level("WARNING")
+    # テスト実行
 ```
 
 ## パフォーマンス測定
@@ -277,8 +297,7 @@ with Timer("operation"):  # ブロック計測
     ...
 ```
 
-ベストプラクティス:
-- @template/src/template_package/utils/profiling.py
+ベストプラクティス: @template/src/template_package/utils/profiling.py
 
 ## 更新トリガー
 
