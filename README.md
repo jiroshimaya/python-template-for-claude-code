@@ -118,7 +118,6 @@ cat file.py | claude "このコードを説明してください"
 claude < input.txt
 
 # 環境変数による設定
-export ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
 export ANTHROPIC_API_KEY=your_api_key
 ```
 
@@ -136,9 +135,8 @@ Claude Codeの対話モード（REPL）中に使用できるコマンドです�
 
 # モデルと設定の管理
 /model                         # 現在のモデルを表示・変更します
-/model sonnet                  # Claude 3.5 Sonnetに変更します
-/model opus                    # Claude 3 Opusに変更します
-/model haiku                   # Claude 3 Haikuに変更します
+/model sonnet                  # Claude 4 Sonnetに変更します
+/model opus                    # Claude 4 Opusに変更します
 /settings                      # 現在の設定を表示・変更します
 /permissions                   # 現在のツール権限を表示します
 
@@ -390,7 +388,6 @@ claude --output-format json --quiet -p "テストを実行してエラー数を�
 cat test_results.txt | claude --output-format text -p "テスト結果を分析してサマリーを作成してください"
 
 # 設定ファイルと連携する
-export ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
 export CLAUDE_CONFIG_FILE="./claude-config.json"
 claude --config-file ./claude-config.json
 ```
@@ -418,7 +415,6 @@ claude mcp status              # MCPの接続状況を確認します
 ```bash
 # 基本設定
 export ANTHROPIC_API_KEY="your_api_key"
-export ANTHROPIC_MODEL="claude-3-5-sonnet-20241022"
 export CLAUDE_CONFIG_DIR="~/.config/claude-code"
 
 # 高度な設定
