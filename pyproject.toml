@@ -122,5 +122,28 @@ markers = [
 [dependency-groups]
 dev = [
     "pytest-benchmark>=5.1.0",
+    "taskipy>=1.14.1",
     "urllib3>=2.5.0",
 ]
+
+
+# =====================
+# taskipy タスク定義
+# =====================
+[tool.taskipy.tasks]
+clean = "\
+  find . -type d -name '__pycache__' -exec rm -rf {} + && \
+  find . -type f -name '*.pyc' -delete && \
+  find . -type d -name '.pytest_cache' -exec rm -rf {} + && \
+  find . -type d -name '.mypy_cache' -exec rm -rf {} + && \
+  find . -type d -name '.ruff_cache' -exec rm -rf {} + && \
+  find . -type d -name 'htmlcov' -exec rm -rf {} + && \
+  find . -type f -name '.coverage' -delete && \
+  rm -rf dist build"
+help = "echo '利用可能なタスク: clean, check, help (task [name] で実行)'"
+check = "\
+  ARGS=\"${args:-.}\"; \
+  uv run ruff format $ARGS && \
+  uv run ruff check $ARGS --fix && \
+  uv run mypy $ARGS --strict && \
+  uv run pytest $ARGS"

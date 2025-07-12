@@ -33,8 +33,7 @@ updated_at: 2025-06-20
 project-root/
 ├── .github/                     # GitHub Actionsの設定ファイル
 │   ├── workflows/               # CI/CD + ベンチマークワークフロー
-│   │   ├── ci.yml               # メインCI（テスト・リント・型チェック）
-│   │   └── benchmark.yml        # パフォーマンスベンチマーク
+│   │   └── ci.yml               # メインCI（テスト・リント・型チェック）
 │   ├── dependabot.yml           # Dependabotの設定
 │   ├── ISSUE_TEMPLATE/          # Issueテンプレート
 │   └── PULL_REQUEST_TEMPLATE.md # Pull Requestテンプレート
@@ -43,7 +42,7 @@ project-root/
 │   │   └── template_package/    # モデルパッケージの完全な実装例
 │   │       ├── __init__.py      # パッケージエクスポートの例
 │   │       ├── py.typed         # 型情報マーカーの例
-│   │       ├── types.py         # 型定義のベストプラクティス
+│   │       ├── schemas.py         # スキーマ定義のベストプラクティス
 │   │       ├── core/
 │   │       │   └── example.py   # クラス・関数実装の模範例
 │   │       └── utils/
@@ -65,7 +64,6 @@ project-root/
 │           └── （プロジェクト固有のパッケージを配置）
 ├── tests/                       # 実際のテスト用ディレクトリ
 │   ├── unit/                    # 単体テスト
-│   ├── property/                # プロパティベーステスト
 │   ├── integration/             # 統合テスト
 │   └── conftest.py              # pytest設定
 ├── docs/                        # ドキュメント
@@ -84,21 +82,21 @@ project-root/
 ### 0. 開発環境を確認して活用する
 
 - 開発環境はuvで管理されています。すべてのPythonコマンドに `uv run` を前置し、新しい依存関係は `uv add` で追加してください。
-- GitHub CLIがインストールされています。GitHub操作は `make pr` や `make issue` 、または `gh` コマンドを使用してください。
-- pre-commitフックが設定されているほか、mypyやruff、pytestなどの厳格なガードレールが整備されています。こまめにmakeコマンドにあるチェックやフォーマットを実行し、コード品質を保証してください。
-- 「よく使うコマンド」セクションにあるmakeコマンドとしたコマンド集は、この開発環境での開発を支援するためのコマンドが揃っています。積極的に活用してください。
+- GitHub CLIがインストールされています。GitHub操作は `gh` コマンドを使用してください。
+- pre-commitフックが設定されているほか、mypyやruff、pytestなどの厳格なガードレールが整備されています。こまめにチェックやフォーマットを実行し、コード品質を保証してください。
+- 「よく使うコマンド」セクションにあるコマンド集は、この開発環境での開発を支援するためのコマンドが揃っています。積極的に活用してください。
 
 ### 1. コード品質を保証する
 
 **コード品質保証のベストプラクティスは「コーディング規約」セクションを参照してください。**
 
-コーディング後は必ず適切なmakeコマンドを実行してください。例えば、コーディング品質を保証するためのmakeコマンドは以下の通りです。
+コーディング後は必ず適切なコマンドを実行してください。例えば、コーディング品質を保証するためのコマンドは以下の通りです。
 
-- `make format`: コードフォーマット
-- `make lint`: リントチェック
-- `make typecheck`: 型チェック（strict mode）
-- `make test`: 全テスト実行
-- まとめて実行: `make check-all`（format → lint → typecheck → test）
+- `uv run ruff format PATH`: コードフォーマット
+- `uv run ruff check PATH --fix`: リントチェック
+- `uv run mypy PATH --strict`: 型チェック（strict mode）
+- `uv run pytest PATH`: テスト実行
+- まとめて実行: `uv run task check`（format → lint → typecheck → test）
 
 ### 2. テストを実装する
 
@@ -132,14 +130,13 @@ project-root/
 
 1. **新しいクラスや関数を実装する際**
    - @template/src/project_name/core/example.py で適切な型ヒント、docstring、エラーハンドリングを確認
-   - @template/src/project_name/types.py で型定義のパターンを確認
+   - @template/src/project_name/schemas.py で型定義のパターンを確認
 
 2. **ユーティリティ関数を作成する際**
    - @template/src/project_name/utils/helpers.py で関数の構造、エラー処理、ロギングを確認
 
 3. **テストを書く際**
    - @template/tests/unit/ で単体テストの書き方を確認
-   - @template/tests/property/ でプロパティベーステストの例を確認
    - @template/tests/conftest.py でフィクスチャの実装例を確認
 
 4. **ロギングを実装する際**
@@ -151,47 +148,36 @@ project-root/
 
 ## よく使うコマンド
 
-### 基本的な開発コマンド（Makefile使用）
+### 基本的な開発コマンド
 
 ```bash
 # 開発環境のセットアップ
-make setup                  # 依存関係インストール + pre-commitフック設定など
+sh ./scripts/setup.sh       # 依存関係インストール + pre-commitフック設定など
 
 # テスト実行
-make test                   # 全テスト実行（単体・プロパティベース・統合）
-make test-cov               # カバレッジ付きテスト実行
-make test-unit              # 単体テストのみ実行
-make test-property          # プロパティベーステストのみ実行
+uv run pytest PATH          # 指定したパスのテストを実行
 
 # コード品質チェック
-make format                 # コードフォーマット
-make lint                   # リントチェック（自動修正付き）
-make typecheck              # 型チェック（strict mode）
-make security               # セキュリティチェック（bandit）
-make audit                  # 依存関係の脆弱性チェック（pip-audit）
-
-# パフォーマンス測定
-make benchmark              # ローカルベンチマーク実行
-make profile                # プロファイリング実行
+uv run ruff format PATH      # コードフォーマット
+uv run ruff check PATH --fix  # リントチェック（自動修正付き）
+uv run mypy PATH --strict    # 型チェック（strict mode）
+uv run bandit -r src/        # セキュリティチェック（bandit）
+uv run pip-audit             # 依存関係の脆弱性チェック（pip-audit）
 
 # 統合チェック
 make check                  # format, lint, typecheck, testを順番に実行
-make check-all              # pre-commitで全ファイルをチェック
-
-# パフォーマンス測定
-make benchmark              # ローカルベンチマーク実行
-make profile                # プロファイリング実行
+uv run pre-commit run --all-files  # pre-commitで全ファイルをチェック
 
 # GitHub操作
-make pr TITLE="タイトル" BODY="本文" [LABEL="ラベル"]      # PR作成
-make issue TITLE="タイトル" BODY="本文" [LABEL="ラベル"]   # イシュー作成
+gh pr create --title "タイトル" --body "本文" [--label "ラベル"]      # PR作成
+gh issue create --title "タイトル" --body "本文" [--label "ラベル"]   # イシュー作成
 
 # その他
-make clean                  # キャッシュファイルの削除
-make help                   # 利用可能なコマンド一覧
+uv run task clean                  # キャッシュファイルの削除
+uv run task help                   # 利用可能なコマンド一覧
 
 # 依存関係の追加
-make sync                         # 全依存関係を同期
+uv sync --all-extras               # 全依存関係を同期
 uv add package_name                # ランタイム依存関係
 uv add --dev dev_package_name      # 開発依存関係
 uv lock --upgrade                  # 依存関係を更新
@@ -287,24 +273,23 @@ if not config_file.exists():
    - 関数・クラスの基本動作をテスト
    - 正常系・異常系・エッジケースもカバーする
 
-2. **プロパティベーステスト** ( @template/tests/property/test_helpers_property.py などを参照 )
-   - Hypothesisで様々な入力パターンを自動生成してテスト
-
-3. **統合テスト** ( @template/tests/integration/test_example.py などを参照 )
+2. **統合テスト** ( @template/tests/integration/test_example.py などを参照 )
    - コンポーネント間の連携
 
 ### テスト命名規約
 
 ```python
 # 日本語で意図を明確に
-def test_正常系_有効なデータで処理成功():
-    """chunk_listが正しくチャンク化できることを確認。"""
+# ソース関数に対応したクラスを作成し、メソッドでケースごとのテストを実装する
+class TestExample:
+    def test_正常系_有効なデータで処理成功(self):
+        """chunk_listが正しくチャンク化できることを確認。"""
 
- def test_異常系_不正なサイズでValueError():
-    """チャンクサイズが0以下の場合、ValueErrorが発生することを確認。"""
+    def test_異常系_不正なサイズでValueError(self):
+        """チャンクサイズが0以下の場合、ValueErrorが発生することを確認。"""
 
-def test_エッジケース_空リストで空結果():
-    """空のリストをチャンク化すると空の結果が返されることを確認。"""
+    def test_エッジケース_空リストで空結果(self):
+        """空のリストをチャンク化すると空の結果が返されることを確認。"""
 ```
 
 ## ロギング戦略
@@ -347,40 +332,6 @@ def test_with_custom_log_level(set_test_log_level):
     # テスト実行
 ```
 
-## パフォーマンス測定とベンチマーク
-
-### プロファイリングツールの使用
-
-```python
-# template/src/template_package/utils/profiling.py を参照
-from project_name.utils.profiling import profile, timeit, Timer, profile_context
-
-# 関数デコレーター
-@profile
-def heavy_computation():
-    return sum(i**2 for i in range(10000))
-
-@timeit
-def quick_function():
-    return [i for i in range(1000)]
-
-# コンテキストマネージャー
-with Timer("Custom operation") as timer:
-    result = process_large_dataset()
-print(f"Took {timer.elapsed:.4f} seconds")
-
-# 詳細プロファイリング
-with profile_context(sort_by="cumulative", limit=10) as prof:
-    complex_operation()
-```
-
-### ベンチマーク自動化
-
-GitHub Actionsで自動ベンチマークが実行されます：
-- PR作成時にパフォーマンス比較
-- 10%以上の性能低下でアラート
-- ベンチマーク結果をPRコメントに自動投稿
-
 ## GitHub操作
 
 AIエージェントは `gh` コマンドを使用してGitHub操作を行うことができます。
@@ -391,7 +342,6 @@ AIエージェントは `gh` コマンドを使用してGitHub操作を行うこ
 
 - 機能追加: `feature/...`
 - バグ修正: `fix/...`
-- リファクタリング: `refactor/...`
 - ドキュメント更新: `docs/...`
 - テスト: `test/...`
 
@@ -399,23 +349,19 @@ AIエージェントは `gh` コマンドを使用してGitHub操作を行うこ
 
 - 機能追加: `enhancement`
 - バグ修正: `bug`
-- リファクタリング: `refactor`
 - ドキュメント更新: `documentation`
 - テスト: `test`
 
 #### コマンドの例
 
 ```bash
-# Makefileコマンドを使用したPR作成
-make pr TITLE="機能追加" BODY="新しい機能を実装しました" LABEL="enhancement"
-make pr TITLE="認証エラー修正" BODY="ログイン時の500エラーを修正" LABEL="bug"
-make pr TITLE="ドキュメント更新" BODY="READMEを更新しました" LABEL="documentation"
+# ghコマンドを使用したPR作成
+gh pr create --title "機能追加" --body "新しい機能を実装しました" --label "enhancement"
+gh pr create --title "認証エラー修正" --body "ログイン時の500エラーを修正" --label "bug"
+gh pr create --title "ドキュメント更新" --body "READMEを更新しました" --label "documentation"
 
 # ラベルなしでPR作成
-make pr TITLE="リファクタリング" BODY="コードの可読性を向上させました"
-
-# 直接gh CLIを使用する場合
-gh pr create --title "Feature: Add new functionality" --body "Description of changes"
+gh pr create --title "リファクタリング" --body "コードの可読性を向上させました"
 
 # ドラフトPRの作成
 gh pr create --draft --title "WIP: Working on feature" --body "Description of changes"
@@ -424,17 +370,14 @@ gh pr create --draft --title "WIP: Working on feature" --body "Description of ch
 ### イシュー管理
 
 ```bash
-# Makefileコマンドを使用したイシューの作成
-make issue TITLE="認証の不具合" BODY="ログイン時にエラーが発生します" LABEL="bug"
-make issue TITLE="新機能の提案" BODY="〜の機能があると便利です" LABEL="enhancement"
-make issue TITLE="AIエージェント改善" BODY="〜の部分で改善が必要です" LABEL="documentation"
-make issue TITLE="質問" BODY="〜について教えてください" LABEL="question"
+# ghコマンドを使用したイシューの作成
+gh issue create --title "認証の不具合" --body "ログイン時にエラーが発生します" --label "bug"
+gh issue create --title "新機能の提案" --body "〜の機能があると便利です" --label "enhancement"
+gh issue create --title "AIエージェント改善" --body "〜の部分で改善が必要です" --label "documentation"
+gh issue create --title "質問" --body "〜について教えてください" --label "question"
 
 # ラベルなしでイシュー作成
-make issue TITLE="一般的な改善提案" BODY="〜を改善してはどうでしょうか"
-
-# 直接gh CLIを使用する場合
-gh issue create --title "Bug: Fix authentication" --body "Description"
+gh issue create --title "一般的な改善提案" --body "〜を改善してはどうでしょうか"
 
 # イシューの一覧表示
 gh issue list
@@ -443,9 +386,9 @@ gh issue list
 gh issue view 123
 ```
 
-## CLAUDE.md自動更新トリガー
+## 指示ファイル自動更新トリガー
 
-**重要**: 以下の状況でCLAUDE.mdの更新を検討してください：
+**重要**: 以下の状況でAIエージェントへの指示ファイルの更新を検討してください：
 
 ### 変更ベースのトリガー
 - 仕様の追加・変更があった場合
