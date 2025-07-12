@@ -165,7 +165,7 @@ uv run bandit -r src/        # セキュリティチェック（bandit）
 uv run pip-audit             # 依存関係の脆弱性チェック（pip-audit）
 
 # 統合チェック
-make check                  # format, lint, typecheck, testを順番に実行
+uv run task check PATH             # format, lint, typecheck, testを順番に実行
 uv run pre-commit run --all-files  # pre-commitで全ファイルをチェック
 
 # GitHub操作
