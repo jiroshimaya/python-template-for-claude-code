@@ -2,25 +2,19 @@
 title: CLAUDE.md
 created_at: 2025-06-14
 updated_at: 2025-06-20
-# このプロパティは、Claude Codeが関連するドキュメントの更新を検知するために必要です。消去しないでください。
+# このプロパティは、AIエージェントが関連するドキュメントの更新を検知するために必要です。消去しないでください。
 ---
 
-このファイルは、[Claude Code](https://www.anthropic.com/claude-code) がこのリポジトリのコードを扱う際のガイダンスを提供します。
+このファイルは、AIエージェントがこのリポジトリのコードを扱う際のガイダンスを提供します。
 
 ## プロジェクト概要
 
-このプロジェクトは、Claude Codeでの開発に最適化されたPythonプロジェクトテンプレートです。
+このプロジェクトは、AIエージェントでの開発に最適化されたPythonプロジェクトテンプレートです。
 厳格な型チェック、自動化されたコード品質管理、CIに加えて、GitHub CLIを使用したGitHub操作をサポートします。
-また、Claude Codeとの協働をサポートするためのドキュメントも提供します。
+また、AIエージェントとの協働をサポートするためのドキュメントも提供します。
 
 **重要**: プロジェクト初期化時のTODO:
 - [ ] この項目（「プロジェクト概要」セクション）をプロジェクトに特化したものに更新
-- [ ] パッケージ、テスト、ベンチマークのCIに存在するサンプルコードを削除する
-    - [ ] @src/project_name/core/example.py を削除
-    - [ ] @src/project_name/utils/helpers.py を削除
-    - [ ] @tests/unit/test_example.py を削除
-    - [ ] @tests/conftest.py を削除
-    - [ ] @.github/workflows/benchmark.yml を削除
 - [ ] このTODOを削除する
 
 ## 技術スタック
@@ -30,8 +24,7 @@ updated_at: 2025-06-20
 - **パッケージ管理**: uv
 - **リンター/フォーマッター**: ruff
 - **型チェッカー**: mypy (strict mode + PEP 695対応)
-- **テストフレームワーク**: pytest + Hypothesis (プロパティベーステスト)
-- **パフォーマンス**: pytest-benchmark (自動ベンチマーク)
+- **テストフレームワーク**: pytest
 - **自動化**: pre-commit, GitHub Actions
 
 ## プロジェクト全体の構造(デフォルト。必要に応じて更新してください)
@@ -45,7 +38,7 @@ project-root/
 │   ├── dependabot.yml           # Dependabotの設定
 │   ├── ISSUE_TEMPLATE/          # Issueテンプレート
 │   └── PULL_REQUEST_TEMPLATE.md # Pull Requestテンプレート
-├── template/                    # **重要**: Claude Codeのベストプラクティス・モデルコード
+├── template/                    # **重要**: AIエージェントのベストプラクティス・モデルコード
 │   ├── src/
 │   │   └── template_package/    # モデルパッケージの完全な実装例
 │   │       ├── __init__.py      # パッケージエクスポートの例
@@ -390,7 +383,7 @@ GitHub Actionsで自動ベンチマークが実行されます：
 
 ## GitHub操作
 
-Claude Codeは `gh` コマンドを使用してGitHub操作を行うことができます。
+AIエージェントは `gh` コマンドを使用してGitHub操作を行うことができます。
 
 ### プルリクエスト作成
 
@@ -434,7 +427,7 @@ gh pr create --draft --title "WIP: Working on feature" --body "Description of ch
 # Makefileコマンドを使用したイシューの作成
 make issue TITLE="認証の不具合" BODY="ログイン時にエラーが発生します" LABEL="bug"
 make issue TITLE="新機能の提案" BODY="〜の機能があると便利です" LABEL="enhancement"
-make issue TITLE="Claude Code改善" BODY="〜の部分で改善が必要です" LABEL="documentation"
+make issue TITLE="AIエージェント改善" BODY="〜の部分で改善が必要です" LABEL="documentation"
 make issue TITLE="質問" BODY="〜について教えてください" LABEL="question"
 
 # ラベルなしでイシュー作成
