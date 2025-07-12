@@ -7,7 +7,8 @@ requires-python = ">=3.12"
 dependencies = [
     # 主要な依存関係をここに記載
     "structlog>=25.4.0",
-    "rich>=13.7.0",  # structlogのカラフルなコンソール出力用
+    "rich>=13.7.0", # structlogのカラフルなコンソール出力用
+    "pydantic>=2.11.7",
 ]
 
 [project.optional-dependencies]
@@ -131,19 +132,21 @@ dev = [
 # taskipy タスク定義
 # =====================
 [tool.taskipy.tasks]
-clean = "\
-  find . -type d -name '__pycache__' -exec rm -rf {} + && \
-  find . -type f -name '*.pyc' -delete && \
-  find . -type d -name '.pytest_cache' -exec rm -rf {} + && \
-  find . -type d -name '.mypy_cache' -exec rm -rf {} + && \
-  find . -type d -name '.ruff_cache' -exec rm -rf {} + && \
-  find . -type d -name 'htmlcov' -exec rm -rf {} + && \
-  find . -type f -name '.coverage' -delete && \
-  rm -rf dist build"
+clean = """
+  find . -type d -name '__pycache__' -exec rm -rf {} + &&
+  find . -type f -name '*.pyc' -delete &&
+  find . -type d -name '.pytest_cache' -exec rm -rf {} + &&
+  find . -type d -name '.mypy_cache' -exec rm -rf {} + &&
+  find . -type d -name '.ruff_cache' -exec rm -rf {} + &&
+  find . -type d -name 'htmlcov' -exec rm -rf {} + &&
+  find . -type f -name '.coverage' -delete &&
+  rm -rf dist build
+"""
 help = "echo '利用可能なタスク: clean, check, help (task [name] で実行)'"
-check = "\
-  ARGS=\"${args:-.}\"; \
-  uv run ruff format $ARGS && \
-  uv run ruff check $ARGS --fix && \
-  uv run mypy $ARGS --strict && \
-  uv run pytest $ARGS"
+check = """
+  ARGS="${args:-.}"
+  uv run ruff format $ARGS &&
+  uv run ruff check $ARGS --fix &&
+  uv run mypy $ARGS --strict &&
+  uv run pytest $ARGS
+"""
