@@ -52,18 +52,6 @@ body:
         feature = NewFeature()
         result = feature.do_something()
 
-  - type: dropdown
-    id: priority
-    attributes:
-      label: 優先度
-      description: この機能の重要度をどう考えますか？
-      options:
-        - 低（あれば便利）
-        - 中（効率が大幅に向上する）
-        - 高（これがないと困る）
-    validations:
-      required: true
-
   - type: textarea
     id: additional
     attributes:
@@ -74,26 +62,3 @@ body:
         - 類似機能を持つ他のプロジェクト
         - スクリーンショット
         など
-
-  - type: checkboxes
-    id: contribution
-    attributes:
-      label: 貢献について
-      options:
-        - label: この機能の実装に協力する意思があります
-          required: false
-        - label: この機能のテストに協力する意思があります
-          required: false
-        - label: この機能のドキュメント作成に協力する意思があります
-          required: false
-
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: チェックリスト
-      description: 以下の項目を確認してください
-      options:
-        - label: 同様の機能要望が既に存在しないことを確認しました
-          required: true
-        - label: この機能がプロジェクトの目的に合致することを確認しました
-          required: true
