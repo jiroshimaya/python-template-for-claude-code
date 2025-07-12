@@ -186,7 +186,7 @@ setup_precommit() {
     print_step "Setting up pre-commit hooks..."
 
     uv run pre-commit install
-    uv run pre-commit install --hook-type commit-msg
+    uv run pre-commit install --hook-type pre-push
 
     # Run pre-commit on all files to ensure everything is set up
     print_step "Running initial pre-commit checks..."
@@ -225,10 +225,18 @@ main() {
     echo "==============================="
     echo
 
+
     # Check prerequisites
     check_uv
-    check_npm
-    check_claude_code
+
+    # Ask user if they want to use Claude Code
+    echo -n "Do you want to use Claude Code? [y/N]: "
+    read -r USE_CLAUDE_CODE
+    if [[ "$USE_CLAUDE_CODE" =~ ^[Yy]$ ]]; then
+        check_npm
+        check_claude_code
+    fi
+
     check_github_cli
 
     # Get project configuration

@@ -5,16 +5,15 @@
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![CI](https://github.com/discus0434/python-template-for-claude-code/actions/workflows/ci.yml/badge.svg)](https://github.com/discus0434/python-template-for-claude-code/actions/workflows/ci.yml)
-[![Benchmark](https://github.com/discus0434/python-template-for-claude-code/actions/workflows/benchmark.yml/badge.svg)](https://github.com/discus0434/python-template-for-claude-code/actions/workflows/benchmark.yml)
 
-[Claude Code](https://www.anthropic.com/claude-code)との協働に最適化された、プロダクション対応のPythonプロジェクトテンプレートです。厳格な型チェック、自動パフォーマンス測定、包括的なドキュメント、進化するメモリ管理システムを備えています。
+[AIエージェント](https://www.anthropic.com/claude-code)との協働に最適化された、プロダクション対応のPythonプロジェクトテンプレートです。厳格な型チェック、自動パフォーマンス測定、包括的なドキュメント、進化するメモリ管理システムを備えています。
 
 ## 🔗 重要なドキュメント
 
-- **[CLAUDE.md](./CLAUDE.md)**: Claude Code向けの技術仕様・実装ガイド
+- **[CLAUDE.md](./CLAUDE.md)**: AIエージェント向けの技術仕様・実装ガイド
 - **[template/](./template/)**: ベストプラクティスのモデルコード集
 
-## 📋 Claude Code チートシート
+## 📋 AIエージェント チートシート
 
 #### 基本CLIコマンド
 ```bash
@@ -34,7 +33,7 @@ claude -c
 claude -r
 
 # アップデート・システム管理
-claude update                    # Claude Codeを最新版に更新
+claude update                    # AIエージェントを最新版に更新
 claude --version                # バージョン確認
 claude --help                   # ヘルプ表示
 claude mcp                      # Model Context Protocol設定
@@ -90,7 +89,7 @@ export ANTHROPIC_API_KEY=your_api_key
 ```
 
 #### REPLモード内スラッシュコマンド
-Claude Code のインタラクティブモード中に使用できるコマンド：
+AIエージェント のインタラクティブモード中に使用できるコマンド：
 
 ```bash
 # 基本コマンド
@@ -291,7 +290,7 @@ uv sync --all-extras
 
 # pre-commitフックをインストール
 uv run pre-commit install
-uv run pre-commit install --hook-type commit-msg
+uv run pre-commit install --hook-type pre-push
 
 # テストを実行
 uv run pytest
@@ -304,26 +303,15 @@ uv run pytest
 - **[Ruff](https://github.com/astral-sh/ruff)** - 超高速Pythonリンター・フォーマッター
 - **[mypy](https://mypy-lang.org/)** - strictモード＋PEP 695型構文対応
 - **[pytest](https://pytest.org/)** - カバレッジ付きテストフレームワーク
-- **[hypothesis](https://hypothesis.readthedocs.io/)** - プロパティベーステストフレームワーク
-- **[pytest-benchmark](https://pytest-benchmark.readthedocs.io/)** - 自動パフォーマンステスト
 - **[bandit](https://github.com/PyCQA/bandit)** - セキュリティスキャン
 - **[pip-audit](https://github.com/pypa/pip-audit)** - 依存関係の脆弱性チェック
 - **[pre-commit](https://pre-commit.com/)** - コード品質用Gitフック
 
 ### 🔍 コード品質・型安全性
 - ✅ PEP 695新型構文（`type` statement）対応
-- ✅ TypedDict・Literal・Protocol活用の堅牢な型システム
-- ✅ JSON操作用の型安全なユーティリティ
-- ✅ プロパティベーステストによるエッジケース検証
-- ✅ 包括的なヘルパー関数テストスイート
+- ✅ pydantic.BaseModel・Literal・Protocol活用の堅牢な型システム
 - ✅ 自動セキュリティ・脆弱性チェック
 
-### ⚡ パフォーマンス・プロファイリング
-- ✅ `@profile`、`@timeit`デコレータによる性能測定
-- ✅ 自動ベンチマークCI（PR時の性能比較レポート）
-- ✅ コンテキストマネージャー型プロファイラー
-- ✅ 性能回帰検出システム
-- ✅ メモリ・実行時間の詳細監視
 
 ### 🔄 CI/CD・自動化
 - ✅ 並列実行対応の高速CIパイプライン
@@ -332,11 +320,6 @@ uv run pytest
 - ✅ GitHub CLIによるワンコマンドPR・Issue作成
 - ✅ キャッシュ最適化された実行環境
 
-### 📚 包括的ドキュメント
-- ✅ **CLAUDE.md** - ベース
-- ✅ **専門ガイド** - ML/バックエンドプロジェクト対応
-- ✅ **協働戦略ガイド** - 人間とClaude Codeの効果的な連携方法
-- ✅ **メモリ更新プロトコル** - ドキュメント品質管理フレームワーク
 
 ## 📁 プロジェクト構造
 
@@ -344,29 +327,46 @@ uv run pytest
 project-root/
 ├── .github/                     # GitHub Actionsの設定ファイル
 │   ├── workflows/               # CI/CD + ベンチマークワークフロー
-│   │   ├── ci.yml              # メインCI（テスト・リント・型チェック）
-│   │   └── benchmark.yml       # パフォーマンスベンチマーク
+│   │   └── ci.yml               # メインCI（テスト・リント・型チェック）
 │   ├── dependabot.yml           # Dependabotの設定
 │   ├── ISSUE_TEMPLATE/          # Issueテンプレート
 │   └── PULL_REQUEST_TEMPLATE.md # Pull Requestテンプレート
-├── src/
-│   └── project_name/            # メインパッケージ（uv syncでインストール可能）
-│       ├── __init__.py
-│       ├── py.typed             # PEP 561準拠の型情報マーカー
-│       ├── types.py             # プロジェクト共通型定義
-│       ├── core/                # コアロジック
-│       └── utils/               # ユーティリティ
-├── tests/                       # テストコード
+├── template/                    # **重要**: AIエージェントのベストプラクティス・モデルコード
+│   ├── src/
+│   │   └── template_package/    # モデルパッケージの完全な実装例
+│   │       ├── __init__.py      # パッケージエクスポートの例
+│   │       ├── py.typed         # 型情報マーカーの例
+│   │       ├── schemas.py         # スキーマ定義のベストプラクティス
+│   │       ├── core/
+│   │       │   └── example.py   # クラス・関数実装の模範例
+│   │       └── utils/
+│   │           ├── helpers.py   # ユーティリティ関数の実装例
+│   │           ├── logging_config.py # ロギング設定の実装例
+│   │           └── profiling.py # パフォーマンス測定の実装例
+│   └── tests/                   # テストコードの完全な実装例
+│       ├── unit/                # 単体テストの例
+│       │   ├── test_example.py  # クラステストの例
+│       │   ├── test_helpers.py  # 関数テストの例
+│       │   └── test_logging.py  # ロギングテストの例
+│       ├── property/            # プロパティベーステストの例
+│       │   └── test_helpers_property.py
+│       ├── integration/         # 結合テストの例
+│       │   └── test_example.py
+│       └── conftest.py          # pytestフィクスチャの例
+├── src/                         # 実際の開発用ディレクトリ
+│       └── project_name/    # モデルパッケージの完全な実装例
+│           └── （プロジェクト固有のパッケージを配置）
+├── tests/                       # 実際のテスト用ディレクトリ
 │   ├── unit/                    # 単体テスト
-│   ├── property/                # プロパティベーステスト
 │   ├── integration/             # 統合テスト
 │   └── conftest.py              # pytest設定
 ├── docs/                        # ドキュメント
-├── scripts/                     # セットアップスクリプト
-├── pyproject.toml               # 依存関係・ツール設定
-├── .pre-commit-config.yaml      # pre-commit設定
-├── README.md                    # プロジェクト説明
-└── CLAUDE.md                    # Claude Code用ガイド
+├── scripts/                     # ユーティリティスクリプト
+├── pyproject.toml               # uv/ruff/mypyの設定ファイル
+├── .gitignore                   # バージョン管理除外ファイル
+├── .pre-commit-config.yaml      # pre-commitの設定ファイル
+├── README.md                    # 人間向けのプロジェクトの説明
+└── CLAUDE.md                    # このファイル
 ```
 
 ## 📚 ドキュメント階層
@@ -376,19 +376,6 @@ project-root/
   - プロジェクト概要・コーディング規約
   - よく使うコマンド・GitHub操作
   - 型ヒント・テスト戦略・セキュリティ
-
-### 🤝 戦略ガイド
-
-### 🎨 プロジェクトタイプ別ガイド
-- **[ml-project-guide.md](docs/ml-project-guide.md)** - 機械学習プロジェクト
-  - PyTorch・Hydra・wandb統合設定
-  - 実験管理・データバージョニング
-  - GPU最適化・モデル管理
-
-- **[backend-project-guide.md](docs/backend-project-guide.md)** - FastAPIバックエンド
-  - 非同期データベース操作・JWT認証
-  - API設計・セキュリティ設定
-  - Docker開発環境・プロダクション考慮事項
 
 ## ✅ 新規プロジェクト設定チェックリスト
 
@@ -402,8 +389,6 @@ project-root/
 ### ⚙️ 開発環境・品質設定
 - [ ] **依存関係調整**: プロジェクトに必要な追加パッケージの導入
 - [ ] **リントルール**: プロジェクトに合わせた`ruff`設定のカスタマイズ
-- [ ] **テストカバレッジ**: `pytest`カバレッジ要件の調整
-- [ ] **プロファイリング**: パフォーマンス要件に応じたベンチマーク設定
 
 ### 🔐 GitHubリポジトリ・セキュリティ設定
 - [ ] **ブランチ保護**: `main`ブランチの保護ルール有効化
@@ -441,15 +426,6 @@ select = ["E", "F", "I"]  # 基本から開始
 ignore = ["E501"]  # 行の長さはフォーマッターが処理
 ```
 
-### テストカバレッジ要件の変更
-
-```toml
-# pyproject.toml
-[tool.pytest.ini_options]
-addopts = [
-    "--cov-fail-under=60",  # 初期要件を低めに設定
-]
-```
 
 ## 🔗 外部リソース・参考資料
 
@@ -459,10 +435,6 @@ addopts = [
 - **[mypy ドキュメント](https://mypy.readthedocs.io/)** - 型チェッカー
 - **[pytest ドキュメント](https://docs.pytest.org/en/stable/)** - テストフレームワーク
 - **[Hypothesis ドキュメント](https://hypothesis.readthedocs.io/)** - プロパティベーステスト
-
-### 🤖 Claude Code関連
-- **[Claude Code 公式サイト](https://www.anthropic.com/claude-code)** - 基本情報・インストール
-- **[Claude Code ドキュメント](https://docs.anthropic.com/en/docs/claude-code)** - 使用方法・ベストプラクティス
 
 ### 🐍 Python・型ヒント
 - **[PEP 695 - Type Parameter Syntax](https://peps.python.org/pep-0695/)** - 新型構文仕様
