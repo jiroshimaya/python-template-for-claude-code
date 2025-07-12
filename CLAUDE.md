@@ -218,7 +218,7 @@ src/
 
 ### 型ヒントのベストプラクティス
 
-@template/src/template_package/types.py を参照してください。
+@template/src/template_package/schemas.py を参照してください。
 
 ### エラーメッセージの原則
 
