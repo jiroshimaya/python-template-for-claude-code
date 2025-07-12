@@ -260,20 +260,6 @@ main() {
     echo "   gh repo view --web  # Open in browser to configure"
     echo "4. Start coding! 🎉"
     echo
-    echo "Useful commands:"
-    echo "  make test              # Run tests"
-    echo "  make format            # Format code"
-    echo "  make lint              # Lint code"
-    echo "  make typecheck         # Type check"
-    echo "  make check             # Run all checks"
-    echo "  make help              # Show all available commands"
-    echo "  uv add <package>       # Add a dependency"
-    echo "  make pr                # Create pull request"
-    echo "  make issue-bug         # Create bug report"
-    echo "  make issue-feature     # Create feature request"
-    echo "  make issue-claude      # Create Claude Code collaboration issue"
-    echo "  make issue             # Create issue (template selection)"
-    echo
 }
 
 # Run main function
