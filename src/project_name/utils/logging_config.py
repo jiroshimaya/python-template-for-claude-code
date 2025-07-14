@@ -100,7 +100,7 @@ def add_log_level_upper(_: Any, __: Any, event_dict: dict[str, Any]) -> dict[str
     return event_dict
 
 
-def setup_logging(  # noqa: PLR0913
+def setup_logging(
     *,
     level: LogLevel | str = "INFO",
     format: LogFormat = "console",
@@ -196,7 +196,7 @@ def setup_logging(  # noqa: PLR0913
     logging.basicConfig(
         format="%(message)s",
         stream=sys.stdout,
-        level=getattr(logging, level.upper() if isinstance(level, str) else level),
+        level=getattr(logging, level),
         force=force,
     )
 
@@ -206,9 +206,7 @@ def setup_logging(  # noqa: PLR0913
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
         file_handler = logging.FileHandler(log_path, encoding="utf-8")
-        file_handler.setLevel(
-            getattr(logging, level.upper() if isinstance(level, str) else level)
-        )
+        file_handler.setLevel(getattr(logging, level))
 
         # ファイルへの出力は既にstructlogで処理済みなので、そのまま出力
         file_handler.setFormatter(logging.Formatter("%(message)s"))
@@ -285,7 +283,7 @@ def set_log_level(level: LogLevel | str, logger_name: str | None = None) -> None
     logger_name : str | None
         Name of the logger to update. If None, updates root logger
     """
-    level_value = getattr(logging, level.upper() if isinstance(level, str) else level)
+    level_value = getattr(logging, level)
 
     if logger_name:
         logging.getLogger(logger_name).setLevel(level_value)
