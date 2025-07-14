@@ -21,12 +21,14 @@ repos:
       - id: ruff-format
 
   # Type checking
-  - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.389
+  - repo: local
     hooks:
       - id: pyright
-        files: ^(src|tests)/
-        additional_dependencies: ["structlog>=25.4.0", "rich>=13.7.0"]
+        name: pyright
+        entry: uv run pyright
+        language: system
+        files: ^src/
+        types: [python]
 
   # Security
   - repo: https://github.com/PyCQA/bandit

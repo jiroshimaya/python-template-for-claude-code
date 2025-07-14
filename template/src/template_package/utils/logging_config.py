@@ -196,7 +196,7 @@ def setup_logging(
     logging.basicConfig(
         format="%(message)s",
         stream=sys.stdout,
-        level=getattr(logging, level.upper() if isinstance(level, str) else level),
+        level=getattr(logging, level.upper()),
         force=force,
     )
 
@@ -206,9 +206,7 @@ def setup_logging(
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
         file_handler = logging.FileHandler(log_path, encoding="utf-8")
-        file_handler.setLevel(
-            getattr(logging, level.upper() if isinstance(level, str) else level)
-        )
+        file_handler.setLevel(getattr(logging, level.upper()))
 
         # ファイルへの出力は既にstructlogで処理済みなので、そのまま出力
         file_handler.setFormatter(logging.Formatter("%(message)s"))
@@ -285,7 +283,7 @@ def set_log_level(level: LogLevel | str, logger_name: str | None = None) -> None
     logger_name : str | None
         Name of the logger to update. If None, updates root logger
     """
-    level_value = getattr(logging, level.upper() if isinstance(level, str) else level)
+    level_value = getattr(logging, level.upper())
 
     if logger_name:
         logging.getLogger(logger_name).setLevel(level_value)
@@ -360,6 +358,3 @@ def log_performance(logger: BoundLogger) -> Any:
         return wrapper
 
     return decorator
-
-
-# Note: Auto-setup removed to avoid recursion during imports
