@@ -14,7 +14,7 @@ help:
 	@echo "  test-integration - 統合テストのみ実行"
 	@echo "  format       - コードフォーマット（ruff format）"
 	@echo "  lint         - リントチェック（ruff check --fix）"
-	@echo "  typecheck    - 型チェック（mypy）"
+	@echo "  typecheck    - 型チェック（pyright）"
 	@echo "  security     - セキュリティチェック（bandit）"
 	@echo "  audit        - 依存関係の脆弱性チェック（pip-audit）"
 	@echo "  benchmark    - パフォーマンスベンチマーク実行"
@@ -58,7 +58,7 @@ lint:
 	uv run ruff check . --fix --config=pyproject.toml
 
 typecheck:
-	uv run mypy src/ --strict
+	uv run pyright
 
 security:
 	uv run bandit -r src/

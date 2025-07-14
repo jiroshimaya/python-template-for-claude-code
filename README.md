@@ -3,7 +3,6 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![uv](https://img.shields.io/badge/uv-latest-green.svg)](https://github.com/astral-sh/uv)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
-[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![CI](https://github.com/discus0434/python-template-for-claude-code/actions/workflows/ci.yml/badge.svg)](https://github.com/discus0434/python-template-for-claude-code/actions/workflows/ci.yml)
 
 このリポジトリは、[Claude Code](https://www.anthropic.com/claude-code) との協働に最適化された、本番環境に対応可能なPythonプロジェクトテンプレートです。厳格な型チェック、Claude Codeのパフォーマンスを引き出すための包括的なドキュメントやテンプレート、便利なカスタムスラッシュコマンドなどを備えています。
@@ -439,7 +438,7 @@ export CLAUDE_VERBOSE=true           # 詳細な出力を有効化します
 ### 🛠️ 開発ツール
 - **[uv](https://github.com/astral-sh/uv)** - 高速なPythonパッケージマネージャー
 - **[Ruff](https://github.com/astral-sh/ruff)** - 超高速なPythonリンター＆フォーマッター
-- **[mypy](https://mypy-lang.org/)** - `strict`モードとPEP 695の型構文に対応した静的型チェッカー
+- **[pyright](https://github.com/microsoft/pyright)** - `strict`モードとPEP 695の型構文に対応した静的型チェッカー
 - **[pytest](https://pytest.org/)** - カバレッジ計測機能付きのテストフレームワーク
 - **[hypothesis](https://hypothesis.readthedocs.io/)** - プロパティベーステストのフレームワーク
 - **[pytest-benchmark](https://pytest-benchmark.readthedocs.io/)** - パフォーマンスの自動テスト
@@ -551,23 +550,6 @@ project-root/
 
 ## 🔧 カスタマイズ
 
-### 型チェックの厳格度を調整する
-
-`mypy` の `strict` モードが厳しすぎる場合は、`pyproject.toml` で以下のように設定を緩和できます。
-
-```toml
-# pyproject.toml - 基本設定から開始
-[tool.mypy]
-python_version = "3.12"
-warn_return_any = true
-warn_unused_configs = true
-
-# 段階的により厳格な設定を有効化
-[[tool.mypy.overrides]]
-module = ["project_name.core.*"]
-strict = true  # まずはコアモジュールに `strict` モードを適用します
-```
-
 ### リントルールを変更する
 
 ```toml
@@ -593,7 +575,7 @@ addopts = [
 ### 🛠️ 開発ツールの公式ドキュメント
 - **[uv Documentation](https://docs.astral.sh/uv/)** - Pythonパッケージ管理
 - **[Ruff Documentation](https://docs.astral.sh/ruff/)** - リント＆フォーマッター
-- **[mypy Documentation](https://mypy.readthedocs.io/)** - 型チェッカー
+- **[pyright Documentation](https://github.com/microsoft/pyright)** - 型チェッカー
 - **[pytest Documentation](https://docs.pytest.org/en/stable/)** - テストフレームワーク
 - **[Hypothesis Documentation](https://hypothesis.readthedocs.io/)** - プロパティベーステスト
 

@@ -1,7 +1,7 @@
 ---
 title: CLAUDE.md
 created_at: 2025-06-14
-updated_at: 2025-07-08
+updated_at: 2025-07-14
 # このプロパティは、Claude Codeが関連するドキュメントの更新を検知するために必要です。消去しないでください。
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2025-07-08
 
 ## 技術スタック
 
-**Python 3.12+** | uv | Ruff | mypy | pytest + Hypothesis | pre-commit | GitHub Actions
+**Python 3.12+** | uv | Ruff | pyright | pytest + Hypothesis | pre-commit | GitHub Actions
 
 ## プロジェクト構造(デフォルト。必要に応じて更新してください)
 
@@ -192,7 +192,7 @@ src/
 ```
 
 ### Python コーディングスタイル
-- 型ヒント: Python 3.12+スタイル必須（mypy strict + PEP 695）
+- 型ヒント: Python 3.12+スタイル必須（pyright + PEP 695）
 - Docstring: NumPy形式
 - 命名: クラス(PascalCase)、関数(snake_case)、定数(UPPER_SNAKE)、プライベート(_prefix)
 - ベストプラクティス: @template/src/template_package/types.py
