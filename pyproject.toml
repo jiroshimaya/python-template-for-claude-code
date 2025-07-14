@@ -93,7 +93,6 @@ typeCheckingMode = "standard"
 
 # Type checking behavior
 strictParameterNoneValue = false
-enablePytestSupport = true
 
 # 重要なエラー（必ずエラーとして報告）
 reportMissingImports = "error"
