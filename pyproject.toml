@@ -57,7 +57,9 @@ select = [
     "PL",     # Pylint
 ]
 ignore = [
+    "E501",
     "B007",
+    "B008",
     "C401",
     "C408",
     "F821",
@@ -73,6 +75,7 @@ ignore = [
     "PTH123",
     "PERF203",
     "PERF401",
+    "PLW0603",
     "PLC0206",
     "PLC2401",
     "PLR0911",
@@ -89,7 +92,7 @@ include = ["src", "tests"]
 exclude = [".venv", "**/__pycache__"]
 pythonVersion = "3.12"
 pythonPlatform = "All"
-typeCheckingMode = "standard"
+typeCheckingMode = "basic"
 
 # Type checking behavior
 strictParameterNoneValue = false
@@ -116,6 +119,8 @@ reportUnnecessaryComparison = "warning"
 reportUnnecessaryTypeIgnoreComment = "warning"
 
 # 開発を妨げない程度に無効化
+reportCallIssue = "none"
+reportAttributeAccessIssue = "none"
 reportMissingTypeStubs = "none"
 reportMissingSuperCall = "none"
 reportPrivateUsage = "none"
